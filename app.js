@@ -1,5 +1,10 @@
 'use strict';
 
+// ── Supabase ───────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://frxrbrvfnkopnaebclkb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZyeHJicnZmbmtvcG5hZWJjbGtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNjkyNzgsImV4cCI6MjA5Mzg0NTI3OH0.BJBeYfja8yAocjaZIJCdSguNe0r4GCPofJhi9TFTOTo';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // ── Default data ───────────────────────────────────────────────────────────────
 const SEED = [
   {
@@ -203,30 +208,61 @@ const SEED = [
 ];
 
 // ── State ─────────────────────────────────────────────────────────────────────
-const KEY = 'seattle-apts-v2';
-let state;
-try { state = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { state = {}; }
-if (!state.apts) state.apts = SEED.map(a => ({...a}));
-if (!state.work) state.work = '1201 2nd Ave Suite 1900, Seattle, WA 98101';
-if (!state.compareIds) state.compareIds = [];
-if (!state.nextId) state.nextId = Math.max(...state.apts.map(a => a.id)) + 1;
+const PREFS_KEY = 'seattle-apts-prefs';
+let state = {
+    apts: [],
+    work: '1201 2nd Ave Suite 1900, Seattle, WA 98101',
+    compareIds: [],
+    nextId: 1,
+};
 
-state.apts.forEach(a => {
-    if (!a.photos) a.photos = [];
-    if (a.rentVerified    === undefined) a.rentVerified    = false;
-    if (a.amenitiesVerified === undefined) a.amenitiesVerified = false;
-    if (a.dataNote        === undefined) a.dataNote        = '';
-});
+// User-specific prefs (work address, compare selections) stay local
+try {
+    const prefs = JSON.parse(localStorage.getItem(PREFS_KEY)) || {};
+    if (prefs.work !== undefined) state.work = prefs.work;
+    if (prefs.compareIds)         state.compareIds = prefs.compareIds;
+} catch {}
 
 const save = () => {
-    try {
-        localStorage.setItem(KEY, JSON.stringify(state));
-    } catch (e) {
-        if (e.name === 'QuotaExceededError') {
-            alert('Storage is full — try removing some uploaded photos to free space.');
-        }
-    }
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify({ work: state.work, compareIds: state.compareIds })); } catch {}
 };
+
+async function saveApt(apt) {
+    const { error } = await sb.from('apartments').upsert({ id: apt.id, apt });
+    if (error) console.error('Save failed:', error);
+}
+
+async function deleteAptFromDb(id) {
+    const { error } = await sb.from('apartments').delete().eq('id', id);
+    if (error) console.error('Delete failed:', error);
+}
+
+async function loadApts() {
+    const { data, error } = await sb.from('apartments').select('apt');
+    if (error) { console.error('Load failed:', error); return; }
+    if (!data || data.length === 0) {
+        // First run — seed the table with default data
+        const rows = SEED.map(a => ({ id: a.id, apt: { ...a } }));
+        const { error: seedErr } = await sb.from('apartments').insert(rows);
+        if (seedErr) { console.error('Seed failed:', seedErr); return; }
+        state.apts = SEED.map(a => ({ ...a }));
+    } else {
+        state.apts = data.map(r => r.apt);
+    }
+    state.apts.forEach(a => {
+        if (!a.photos)                           a.photos             = [];
+        if (a.rentVerified    === undefined)      a.rentVerified       = false;
+        if (a.amenitiesVerified === undefined)    a.amenitiesVerified  = false;
+        if (a.dataNote        === undefined)      a.dataNote           = '';
+    });
+    state.nextId = Math.max(...state.apts.map(a => a.id)) + 1;
+    renderGrid();
+}
+
+// Real-time: refresh grid when any apartment changes
+sb.channel('apartments')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'apartments' }, loadApts)
+    .subscribe();
 
 // ── Gallery state ─────────────────────────────────────────────────────────────
 let galleryAptId = null;
@@ -503,7 +539,7 @@ function renderGrid() {
 window.toggleStar = function(id, e) {
     e.stopPropagation();
     const a = state.apts.find(x => x.id === id);
-    if (a) { a.starred = !a.starred; save(); renderGrid(); }
+    if (a) { a.starred = !a.starred; saveApt(a); renderGrid(); }
 };
 
 window.toggleCompare = function(id, e) {
@@ -704,7 +740,7 @@ window.saveComments = function(id) {
         const who = ta.dataset.who;
         a['comment' + who.charAt(0).toUpperCase() + who.slice(1)] = ta.value;
     });
-    save();
+    saveApt(a);
     renderGrid();
     const btn = document.querySelector('.btn-save');
     if (btn) { btn.textContent = '✓ Saved'; setTimeout(() => { btn.textContent = 'Save comments'; }, 1500); }
@@ -715,6 +751,7 @@ window.deleteApt = function(id) {
     state.apts = state.apts.filter(a => a.id !== id);
     state.compareIds = state.compareIds.filter(x => x !== id);
     save();
+    deleteAptFromDb(id);
     closeModal('detailOverlay');
     renderGrid();
 };
@@ -758,12 +795,21 @@ window.addPhotoRow = function(photo = null) {
 
 window.handlePhotoUpload = async function(files) {
     const uploadBtn = document.getElementById('uploadPhotosBtn');
-    if (uploadBtn) { uploadBtn.textContent = '⏳ Processing…'; uploadBtn.disabled = true; }
+    if (uploadBtn) { uploadBtn.textContent = '⏳ Uploading…'; uploadBtn.disabled = true; }
     for (const file of Array.from(files)) {
         try {
             const dataUrl = await compressImage(file);
-            addPhotoRow({ url: dataUrl, caption: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') });
-        } catch { /* skip unreadable files */ }
+            const res     = await fetch(dataUrl);
+            const blob    = await res.blob();
+            const path    = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+            const { error } = await sb.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg' });
+            if (error) throw error;
+            const { data: { publicUrl } } = sb.storage.from('photos').getPublicUrl(path);
+            addPhotoRow({ url: publicUrl, caption: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') });
+        } catch (err) {
+            console.error('Photo upload failed:', err);
+            alert('Photo upload failed — check the console for details.');
+        }
     }
     if (uploadBtn) { uploadBtn.textContent = '📷 Upload photos'; uploadBtn.disabled = false; }
     document.getElementById('photoFileInput').value = '';
@@ -941,6 +987,7 @@ window.submitForm = function(id) {
 
     if (id) {
         Object.assign(state.apts.find(x => x.id === id), data);
+        data.id = id;
     } else {
         data.id = state.nextId++;
         data.starred = false;
@@ -949,7 +996,7 @@ window.submitForm = function(id) {
         state.apts.push(data);
     }
 
-    save();
+    saveApt(data);
     closeModal('formOverlay');
     renderGrid();
 };
@@ -1065,4 +1112,4 @@ document.getElementById('addBtn').addEventListener('click', () => openForm(null)
 document.getElementById('compareBtn').addEventListener('click', openCompare);
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-renderGrid();
+loadApts();
