@@ -257,6 +257,7 @@ async function loadApts() {
     });
     state.nextId = Math.max(...state.apts.map(a => a.id)) + 1;
     renderGrid();
+    computeWalkTimes();
 }
 
 // Real-time: refresh grid when any apartment changes
@@ -406,6 +407,68 @@ async function findNearbyGroceries(aptId) {
     }
 }
 
+// ── Walk time calculation ─────────────────────────────────────────────────────
+const GEO_CACHE_KEY = 'seattle-apts-geo';
+let geoCache = {};
+try { geoCache = JSON.parse(localStorage.getItem(GEO_CACHE_KEY)) || {}; } catch {}
+const saveGeoCache = () => { try { localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(geoCache)); } catch {} };
+
+const realWalkTimes = {};
+
+async function geocode(address) {
+    if (geoCache[address]) return geoCache[address];
+    try {
+        const res  = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
+            { headers: { 'User-Agent': 'SeattleAptFinder/1.0' } }
+        );
+        const data = await res.json();
+        if (!data[0]) return null;
+        const coords = { lat: +data[0].lat, lon: +data[0].lon };
+        geoCache[address] = coords;
+        saveGeoCache();
+        return coords;
+    } catch { return null; }
+}
+
+async function computeWalkTimes() {
+    const workAddr = state.work.trim();
+    if (!workAddr) return;
+
+    const workCoords = await geocode(workAddr);
+    if (!workCoords) return;
+
+    const aptsWithAddr = state.apts.filter(a => a.address?.trim());
+    const coordsList   = [];
+    for (const apt of aptsWithAddr) {
+        // 1100ms delay only for uncached addresses to respect Nominatim rate limit
+        if (!geoCache[apt.address]) await new Promise(r => setTimeout(r, 1100));
+        coordsList.push(await geocode(apt.address));
+    }
+
+    const validPairs = aptsWithAddr
+        .map((apt, i) => ({ apt, coords: coordsList[i] }))
+        .filter(x => x.coords);
+    if (!validPairs.length) return;
+
+    const allCoords = [workCoords, ...validPairs.map(x => x.coords)];
+    const coordStr  = allCoords.map(c => `${c.lon},${c.lat}`).join(';');
+
+    try {
+        const res  = await fetch(
+            `https://router.project-osrm.org/table/v1/foot/${coordStr}?sources=0&annotations=duration`
+        );
+        const data = await res.json();
+        if (data.code !== 'Ok') return;
+        const durations = data.durations[0];
+        validPairs.forEach(({ apt }, i) => {
+            const secs = durations[i + 1];
+            if (secs != null) realWalkTimes[apt.id] = `${Math.round(secs / 60)} min`;
+        });
+        renderGrid();
+    } catch { /* silently fail, fall back to stored values */ }
+}
+
 // ── Filter / sort ─────────────────────────────────────────────────────────────
 function getVisible() {
     const fType = document.getElementById('fType').value;
@@ -444,7 +507,7 @@ function cardHtml(a) {
     const hasWork = work.trim() !== '';
 
     const distBadge = (() => {
-        const walk    = a.walkToWork?.trim();
+        const walk    = realWalkTimes[a.id] || a.walkToWork?.trim();
         const transit = a.transitToWork?.trim();
         if (!walk && !transit) return hasWork ? `<a href="${mapsUrl(a.address, work, 'walking')}" target="_blank" class="work-dist" onclick="event.stopPropagation()">🗺 Get directions</a>` : '';
         const parts = [];
@@ -670,7 +733,7 @@ function openDetail(id) {
             <div class="d-section">
                 <h3>Distance & Location</h3>
                 <div class="d-grid-2">
-                    <div class="d-field"><label>Walk to work</label><div class="val">${or(a.walkToWork)}</div></div>
+                    <div class="d-field"><label>Walk to work</label><div class="val">${or(realWalkTimes[a.id] || a.walkToWork)}</div></div>
                     <div class="d-field"><label>Transit to work</label><div class="val">${or(a.transitToWork)}</div></div>
                     <div class="d-field"><label>Nearby transit</label><div class="val">${or(a.nearbyTransit)}</div></div>
                     <div class="d-field"><label>Noted grocery</label><div class="val">${or(a.nearbyGrocery)}</div></div>
@@ -1088,11 +1151,14 @@ const clearWork = document.getElementById('clearWork');
 workInput.value = state.work;
 clearWork.classList.toggle('hidden', !state.work);
 
+let workDebounce = null;
 workInput.addEventListener('input', () => {
     state.work = workInput.value;
     clearWork.classList.toggle('hidden', !state.work);
     save();
     renderGrid();
+    clearTimeout(workDebounce);
+    workDebounce = setTimeout(() => computeWalkTimes(), 1000);
 });
 
 clearWork.addEventListener('click', () => {
