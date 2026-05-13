@@ -19,49 +19,50 @@
             <input id="workInput" type="text" placeholder="Work address for directions…" autocomplete="off">
             <button id="clearWork" class="icon-btn hidden" title="Clear">×</button>
         </div>
-        <button id="compareBtn" class="btn-outline" disabled>Compare <span id="compareCount">0</span></button>
         <button id="addBtn" class="btn-primary">+ Add</button>
     </div>
 </header>
 
 <div class="filters">
     <div class="f-left">
-        <select id="fType"><option value="">All types</option><option value="studio">Studio</option><option value="1bd/1ba">1 bed / 1 bath</option></select>
-        <select id="fRent"><option value="">Any price</option><option value="1500">≤ $1,500</option><option value="1700">≤ $1,700</option><option value="1900">≤ $1,900</option></select>
-        <select id="fWD"><option value="">Any W/D</option><option value="unit">In-unit W/D</option><option value="building">Building W/D</option></select>
+        <select id="fType">
+            <option value="">All types</option>
+            <option value="studio">Studio</option>
+            <option value="1bd/1ba">1 bed / 1 bath</option>
+        </select>
+        <select id="fRent">
+            <option value="">Any price</option>
+            <option value="1500">≤ $1,500</option>
+            <option value="1700">≤ $1,700</option>
+            <option value="1900">≤ $1,900</option>
+        </select>
+        <select id="fWD">
+            <option value="">Any W/D</option>
+            <option value="unit">In-unit W/D</option>
+            <option value="building">Building W/D</option>
+        </select>
         <label class="pill-check"><input type="checkbox" id="fAC"> AC</label>
         <label class="pill-check"><input type="checkbox" id="fDW"> Dishwasher</label>
         <label class="pill-check"><input type="checkbox" id="fStar"> ⭐ Starred</label>
     </div>
     <div class="f-right">
-        <select id="sortBy">
-            <option value="rent">Price ↑</option>
-            <option value="rentDesc">Price ↓</option>
-            <option value="sqft">Sqft ↑</option>
-            <option value="rating">Rating ↓</option>
-            <option value="available">Availability</option>
-        </select>
+        <div class="sort-group">
+            <button class="sort-btn active" data-sort="default">Default</button>
+            <button class="sort-btn" data-sort="priceAsc">Price ↑</button>
+            <button class="sort-btn" data-sort="priceDesc">Price ↓</button>
+            <button class="sort-btn" data-sort="area">Area</button>
+        </div>
     </div>
 </div>
 
 <main>
-    <div id="grid" class="grid"></div>
+    <div id="list" class="apt-list"></div>
     <p id="empty" class="empty hidden">No apartments match your filters.</p>
 </main>
 
 <!-- Detail Modal -->
 <div id="detailOverlay" class="overlay hidden">
     <div id="detailModal" class="modal modal-lg"></div>
-</div>
-
-<!-- Compare Modal -->
-<div id="compareOverlay" class="overlay hidden">
-    <div id="compareModal" class="modal modal-xl"></div>
-</div>
-
-<!-- Add / Edit Form Modal -->
-<div id="formOverlay" class="overlay hidden">
-    <div id="formModal" class="modal modal-md"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

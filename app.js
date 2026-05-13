@@ -1,232 +1,167 @@
 'use strict';
 
-// ── Supabase ───────────────────────────────────────────────────────────────────
+// ── Supabase ───────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://frxrbrvfnkopnaebclkb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZyeHJicnZmbmtvcG5hZWJjbGtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNjkyNzgsImV4cCI6MjA5Mzg0NTI3OH0.BJBeYfja8yAocjaZIJCdSguNe0r4GCPofJhi9TFTOTo';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── Default data ───────────────────────────────────────────────────────────────
-const SEED = [
-  {
-    id:1, url:'https://www.realtor.com/rentals/details/1000-8th-Ave_Seattle_WA_98104_M20997-64190',
-    name:'1000 8th Ave', address:'1000 8th Ave, Seattle, WA 98104',
-    type:'1bd/1ba', neighborhood:'First Hill', sqft:550, sqftNote:'500–590',
-    rent:1250, rentMax:null, estUtils:1500, utilitiesIncluded:'',
-    washerDryer:'building', dishwasher:false, ac:false, heating:false,
-    amenities:'Fitness center, pool, theater',
-    walkToWork:'12 min', transitToWork:'8 min by bus',
-    nearbyTransit:'Metro Route 12 (8th Ave)', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'12', rating:6,
-    greenFlags:'', redFlags:'Possible 3D renderings in photos, carpet floors, questionable natural light',
-    notes:'', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Details from listing sheet — Realtor.com not accessible for verification',
-    commentIshita:"Some images look like 3D renderings, they say a lot of natural light but that's not the vibe, don't love carpet floors",
-    commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'Ishita', starred:false,
-  },
-  {
-    id:2, url:'https://www.trulia.com/building/devonshire-420-wall-st-seattle-wa-98121-1001470869',
-    name:'Devonshire', address:'420 Wall St, Seattle, WA 98121',
-    type:'studio', neighborhood:'Belltown', sqft:420, sqftNote:'',
-    rent:1375, rentMax:1650, estUtils:null,
-    utilitiesIncluded:'Electricity, Garbage, Heat, Sewer, Water',
-    washerDryer:'none', dishwasher:false, ac:false, heating:true,
-    amenities:'',
-    walkToWork:'20 min', transitToWork:'12 min by bus',
-    nearbyTransit:'Metro Routes 2/13 (Belltown → downtown)', nearbyGrocery:'10 min walk to Whole Foods',
-    dateAvailable:'May 1', leaseMonths:'12', rating:5,
-    greenFlags:'Electricity, garbage, heat, sewer, water all included in rent',
-    redFlags:'Old building. No W/D in unit or building. AC unclear — contact manager',
-    notes:'', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Utilities (Electricity, Garbage, Heat, Sewer, Water) confirmed from Trulia listing. Rent unverified.',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'Ishita', starred:false,
-  },
-  {
-    id:3, url:'https://www.apartmentlist.com/shortlist/p37448256',
-    name:'Yesler Terrace', address:'120 8th Ave S, Seattle, WA 98104',
-    type:'1bd/1ba', neighborhood:'Yesler Terrace', sqft:606, sqftNote:'',
-    rent:1467, rentMax:null, estUtils:1667, utilitiesIncluded:'',
-    washerDryer:'unit', dishwasher:true, ac:true, heating:true,
-    amenities:'Rooftop lounge, hot tub, fitness center, dog park',
-    walkToWork:'24 min', transitToWork:'10 min by bus',
-    nearbyTransit:'Metro Routes 3/4 (Yesler Way)', nearbyGrocery:'',
-    dateAvailable:'May 7', leaseMonths:'12', rating:null,
-    greenFlags:'In-unit W/D, dishwasher, AC, rooftop lounge, hot tub, fitness, dog park — verified on website',
-    redFlags:'',
-    notes:'',
-    photos:[{url:'https://cdn.apartmentlist.com/image/upload/c_fill,dpr_auto,f_auto,g_center,h_415,q_auto,w_640/89d38158cf772fcd1a34674513c67ede.jpg', caption:'Building exterior'}],
-    rentVerified:true, amenitiesVerified:true,
-    dataNote:'Price ($1,467/mo) and amenities verified from ApartmentList. Sheet listed $1,600.',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'', starred:false,
-  },
-  {
-    id:4, url:'https://www.masonandmainapartments.com/floorplans',
-    name:'Mason & Main (check plans)', address:'209 12th Avenue South, Seattle, WA 98144',
-    type:'1bd/1ba', neighborhood:'First Hill / 12th Ave', sqft:null, sqftNote:'',
-    rent:null, rentMax:null, estUtils:null, utilitiesIncluded:'',
-    washerDryer:null, dishwasher:null, ac:null, heating:null, amenities:'',
-    walkToWork:'18 min', transitToWork:'12 min by bus',
-    nearbyTransit:'Metro Routes 3/4 (12th Ave)', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'', rating:null,
-    greenFlags:'', redFlags:'',
-    notes:'Needs more info — check floor plans link', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Incomplete listing — check floor plans page for current pricing',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'Ishita', starred:false,
-  },
-  {
-    id:5, url:'https://www.barclaybroadway.com/',
-    name:'Barclay Broadway', address:'Broadway, First Hill, Seattle, WA',
-    type:'1bd/1ba', neighborhood:'Broadway / First Hill', sqft:null, sqftNote:'',
-    rent:null, rentMax:null, estUtils:null, utilitiesIncluded:'',
-    washerDryer:null, dishwasher:null, ac:null, heating:null, amenities:'',
-    walkToWork:'20 min', transitToWork:'10 min by bus',
-    nearbyTransit:'Capitol Hill Link Station (~5 min walk)', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'', rating:null,
-    greenFlags:'', redFlags:'',
-    notes:'Needs more info', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Website not accessible — all details from sheet',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'Ishita', starred:false,
-  },
-  {
-    id:6, url:'https://www.iconseattle.com/floorplans',
-    name:'ICON Seattle', address:'ICON Seattle, Seattle, WA',
-    type:'1bd/1ba', neighborhood:'Seattle', sqft:null, sqftNote:'',
-    rent:null, rentMax:null, estUtils:null, utilitiesIncluded:'',
-    washerDryer:null, dishwasher:null, ac:null, heating:null, amenities:'',
-    walkToWork:'', transitToWork:'',
-    nearbyTransit:'', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'', rating:null,
-    greenFlags:'', redFlags:'',
-    notes:'Needs more info', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Website not accessible — all details from sheet',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'Ishita', starred:false,
-  },
-  {
-    id:7, url:'https://thewilderseattle.com/floorplans/',
-    name:'The Wilder', address:'1607 14th Ave, Seattle, WA 98122',
-    type:'1bd/1ba', neighborhood:'Capitol Hill', sqft:null, sqftNote:'',
-    rent:null, rentMax:null, estUtils:null, utilitiesIncluded:'',
-    washerDryer:null, dishwasher:null, ac:null, heating:null, amenities:'',
-    walkToWork:'20 min', transitToWork:'12 min (Capitol Hill Link + walk)',
-    nearbyTransit:'Capitol Hill Link Station (~8 min walk)', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'', rating:null,
-    greenFlags:'', redFlags:'',
-    notes:'Needs more info', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Website not accessible — all details from sheet',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'Ishita', starred:false,
-  },
-  {
-    id:8, url:'https://www.terravitaseattle.com/',
-    name:'Terravita', address:'1615 Belmont Ave, Seattle, WA 98122',
-    type:'studio', neighborhood:'Capitol Hill', sqft:451, sqftNote:'',
-    rent:1899, rentMax:null, estUtils:2099, utilitiesIncluded:'',
-    washerDryer:'unit', dishwasher:true, ac:null, heating:null, amenities:'',
-    walkToWork:'22 min', transitToWork:'12 min (Capitol Hill Link + walk)',
-    nearbyTransit:'Capitol Hill Link Station (~6 min walk)', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'', rating:null,
-    greenFlags:'In-unit W/D, Capitol Hill Link nearby',
-    redFlags:'Sheet listed $1,599 but website shows $1,899+',
-    notes:'', photos:[],
-    rentVerified:true, amenitiesVerified:false,
-    dataNote:'⚠️ Price discrepancy: sheet listed $1,599 — website shows $1,899 for studio. Address and rent verified from website.',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'Aarav', starred:false,
-  },
-  {
-    id:9, url:'https://www.zillow.com/apartments/seattle-wa/station-house/Ch2fck/',
-    name:'Station House', address:'Capitol Hill, Seattle, WA',
-    type:'1bd/1ba', neighborhood:'Capitol Hill', sqft:618, sqftNote:'',
-    rent:1650, rentMax:null, estUtils:1850, utilitiesIncluded:'',
-    washerDryer:'building', dishwasher:true, ac:true, heating:true,
-    amenities:'Patio',
-    walkToWork:'22 min', transitToWork:'12 min (Capitol Hill Link)',
-    nearbyTransit:'Capitol Hill Link Station', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'', rating:null,
-    greenFlags:'New building, very clean, patio',
-    redFlags:'',
-    notes:'', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Zillow listing not accessible — all details from sheet',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'',
-    commentAarav:'Actually very clean and nice, new building, patio', addedBy:'Aarav', starred:false,
-  },
-  {
-    id:10, url:'https://www.livezigseattle.com/',
-    name:'Zig Seattle', address:'Cherry Hill, Seattle, WA',
-    type:'studio', neighborhood:'Cherry Hill', sqft:449, sqftNote:'',
-    rent:1767, rentMax:null, estUtils:1967, utilitiesIncluded:'',
-    washerDryer:'unit', dishwasher:true, ac:true, heating:true, amenities:'',
-    walkToWork:'28 min', transitToWork:'10 min by bus',
-    nearbyTransit:'Metro Routes 3/4 (Cherry Hill)', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'', rating:null,
-    greenFlags:'Trendy building, cool studio setup, close to transit',
-    redFlags:'',
-    notes:'', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Website not accessible — all details from sheet',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'',
-    commentAarav:'Trendy building and cool setup for a studio. Yes, very close to transit', addedBy:'Aarav', starred:false,
-  },
-  {
-    id:11, url:'https://www.masonandmainapartments.com/',
-    name:'Mason & Main (1B)', address:'209 12th Ave S, Seattle, WA 98144',
-    type:'1bd/1ba', neighborhood:'12th Ave S / First Hill', sqft:606, sqftNote:'',
-    rent:1520, rentMax:null, estUtils:1720, utilitiesIncluded:'',
-    washerDryer:'unit', dishwasher:true, ac:true, heating:true, amenities:'',
-    walkToWork:'18 min', transitToWork:'12 min by bus',
-    nearbyTransit:'Metro Routes 3/4 (12th Ave)', nearbyGrocery:'Close to many Asian restaurants',
-    dateAvailable:'', leaseMonths:'12', rating:10,
-    greenFlags:'Awesome building, 18 min to work, tons of great restaurants nearby',
-    redFlags:'',
-    notes:'Look at the 3D tour!', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Website not fully accessible — details from sheet',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'',
-    commentAarav:"This building is awesome, idk just look. 18 min to work. Super close to a bunch of Asian restaurants — so many dates",
-    addedBy:'Aarav', starred:true,
-  },
-  {
-    id:12, url:'https://arrivefirsthill.prospectportal.com/seattle/arrive-first-hill/conventional/',
-    name:'Arrive First Hill', address:'First Hill, Seattle, WA',
-    type:'1bd/1ba', neighborhood:'First Hill', sqft:650, sqftNote:'',
-    rent:1754, rentMax:null, estUtils:1954, utilitiesIncluded:'',
-    washerDryer:'unit', dishwasher:true, ac:true, heating:true, amenities:'',
-    walkToWork:'18 min', transitToWork:'8 min by bus',
-    nearbyTransit:'Metro Routes 2/12 (First Hill)', nearbyGrocery:'',
-    dateAvailable:'', leaseMonths:'', rating:null,
-    greenFlags:'Close to work, in-unit W/D, AC, dishwasher',
-    redFlags:'',
-    notes:'', photos:[],
-    rentVerified:false, amenitiesVerified:false,
-    dataNote:'Website not accessible — all details from sheet',
-    commentIshita:'', commentIshmeet:'', commentJyotsna:'', commentAarav:'', addedBy:'Aarav', starred:false,
-  },
-];
-
-// ── State ─────────────────────────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────────────
+const DEFAULT_AMENITIES = ['Gym', 'Pool', 'Rooftop', 'Lounge', 'Package Locker'];
 const PREFS_KEY = 'seattle-apts-prefs';
+const GEO_CACHE_KEY = 'seattle-apts-geo';
+
+// ── State ──────────────────────────────────────────────────────────────────
 let state = {
     apts: [],
     work: '1201 2nd Ave Suite 1900, Seattle, WA 98101',
-    compareIds: [],
     nextId: 1,
 };
 
-// User-specific prefs (work address, compare selections) stay local
+let currentSort   = 'default';
+let openDetailId  = null;
+let migrating     = false;
+
+// Load prefs from localStorage
 try {
     const prefs = JSON.parse(localStorage.getItem(PREFS_KEY)) || {};
     if (prefs.work !== undefined) state.work = prefs.work;
-    if (prefs.compareIds)         state.compareIds = prefs.compareIds;
 } catch {}
 
-const save = () => {
-    try { localStorage.setItem(PREFS_KEY, JSON.stringify({ work: state.work, compareIds: state.compareIds })); } catch {}
+const savePrefs = () => {
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify({ work: state.work })); } catch {}
 };
 
+// ── Geo cache ──────────────────────────────────────────────────────────────
+let geoCache = {};
+try { geoCache = JSON.parse(localStorage.getItem(GEO_CACHE_KEY)) || {}; } catch {}
+const saveGeoCache = () => { try { localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(geoCache)); } catch {} };
+const realWalkTimes = {};
+
+// ── Pure helpers ───────────────────────────────────────────────────────────
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const or  = (v, fb = '—') => (v != null && v !== '') ? v : fb;
+
+function mapsUrl(from, to, mode) {
+    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}&travelmode=${mode}`;
+}
+function groceryMapsUrl(address) {
+    return `https://www.google.com/maps/search/grocery+stores+near+${encodeURIComponent(address)}`;
+}
+function haversine(lat1, lon1, lat2, lon2) {
+    const R = 3958.8, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return R * 2 * Math.asin(Math.sqrt(a));
+}
+
+function minPrice(apt) {
+    const prices = (apt.units || []).map(u => u.price).filter(p => p != null && p > 0);
+    return prices.length ? Math.min(...prices) : null;
+}
+function maxPrice(apt) {
+    const prices = (apt.units || []).map(u => u.price).filter(p => p != null && p > 0);
+    return prices.length ? Math.max(...prices) : null;
+}
+function maxSqft(apt) {
+    const sqfts = (apt.units || []).map(u => u.sqft).filter(s => s != null && s > 0);
+    return sqfts.length ? Math.max(...sqfts) : null;
+}
+
+function unitSummary(apt) {
+    const units = apt.units || [];
+    const types = [...new Set(units.map(u => u.type).filter(Boolean))].join(' / ');
+    const lo = minPrice(apt), hi = maxPrice(apt);
+    const priceStr = lo == null ? '—' : lo === hi || hi == null ? `$${lo.toLocaleString()}` : `$${lo.toLocaleString()}–$${hi.toLocaleString()}`;
+    const sqfts = units.map(u => u.sqft).filter(Boolean);
+    const sqftStr = sqfts.length ? (Math.min(...sqfts) === Math.max(...sqfts) ? `${Math.min(...sqfts)} sf` : `${Math.min(...sqfts)}–${Math.max(...sqfts)} sf`) : '';
+    return [types, priceStr, sqftStr].filter(Boolean).join(' · ');
+}
+
+function getAmenityOptions() {
+    const extra = new Set();
+    state.apts.forEach(a => (a.buildingAmenities || []).forEach(x => {
+        if (!DEFAULT_AMENITIES.includes(x)) extra.add(x);
+    }));
+    return [...DEFAULT_AMENITIES, ...[...extra].sort()];
+}
+
+// ── Migration ──────────────────────────────────────────────────────────────
+function parseAmenitiesString(str) {
+    if (!str) return [];
+    return str.split(',').map(s => s.trim()).filter(Boolean).map(t => {
+        const match = DEFAULT_AMENITIES.find(d => d.toLowerCase() === t.toLowerCase() || t.toLowerCase().includes(d.toLowerCase()));
+        return match || (t.charAt(0).toUpperCase() + t.slice(1));
+    }).filter((v, i, arr) => arr.indexOf(v) === i);
+}
+
+function migrateApt(a) {
+    // URLs
+    a.listingUrl = a.url || a.listingUrl || '';
+    a.websiteUrl = a.websiteUrl || '';
+    delete a.url;
+
+    // Units
+    if (!Array.isArray(a.units)) {
+        a.units = [{
+            id: `${a.id}-0`,
+            type: a.type || '',
+            unitNumber: '',
+            sqft: a.sqft ?? null,
+            price: a.rent ?? null,
+            available: a.dateAvailable || 'now',
+        }];
+    }
+
+    // Building amenities
+    if (!Array.isArray(a.buildingAmenities)) {
+        a.buildingAmenities = parseAmenitiesString(a.amenities || '');
+    }
+
+    // Google rating
+    if (!a.googleRating) a.googleRating = '';
+
+    // Merge old separate comments into one
+    if (!a.comments) {
+        const parts = [];
+        if (a.commentIshita?.trim())  parts.push(`Ishita: ${a.commentIshita.trim()}`);
+        if (a.commentIshmeet?.trim()) parts.push(`Ishmeet: ${a.commentIshmeet.trim()}`);
+        if (a.commentJyotsna?.trim()) parts.push(`Jyotsna: ${a.commentJyotsna.trim()}`);
+        if (a.commentAarav?.trim())   parts.push(`Aarav: ${a.commentAarav.trim()}`);
+        a.comments = parts.join('\n\n');
+    }
+
+    // Interaction fields
+    if (!a.holdDays)     a.holdDays     = '';
+    if (!a.phone)        a.phone        = '';
+    if (!a.contactName)  a.contactName  = '';
+    if (a.called  == null) a.called     = false;
+    if (!a.tourType)     a.tourType     = '';
+    if (!a.specialOffers) a.specialOffers = '';
+    if (!a.notes)        a.notes        = '';
+
+    // sortOrder
+    if (a.sortOrder == null) a.sortOrder = a.id * 10;
+
+    // Photos
+    if (!Array.isArray(a.photos)) a.photos = [];
+
+    // Preserve starred before deleting old fields
+    const wasStarred = a.starred ?? false;
+
+    // Delete old fields
+    for (const k of ['type','sqft','sqftNote','rent','rentMax','estUtils',
+                      'dateAvailable','leaseMonths','heating','amenities',
+                      'greenFlags','redFlags','rating','rentVerified',
+                      'amenitiesVerified','dataNote','addedBy',
+                      'nearbyTransit','walkToWork','transitToWork',
+                      'nearbyGrocery',
+                      'commentIshita','commentIshmeet','commentJyotsna','commentAarav']) {
+        delete a[k];
+    }
+
+    a.starred = wasStarred;
+}
+
+// ── Supabase layer ─────────────────────────────────────────────────────────
 async function saveApt(apt) {
     const { error } = await sb.from('apartments').upsert({ id: apt.id, apt });
     if (error) console.error('Save failed:', error);
@@ -240,88 +175,170 @@ async function deleteAptFromDb(id) {
 async function loadApts() {
     const { data, error } = await sb.from('apartments').select('apt');
     if (error) { console.error('Load failed:', error); return; }
-    if (!data || data.length === 0) {
-        // First run — seed the table with default data
-        const rows = SEED.map(a => ({ id: a.id, apt: { ...a } }));
-        const { error: seedErr } = await sb.from('apartments').insert(rows);
-        if (seedErr) { console.error('Seed failed:', seedErr); return; }
-        state.apts = SEED.map(a => ({ ...a }));
-    } else {
-        state.apts = data.map(r => r.apt);
-    }
-    state.apts.forEach(a => {
-        if (!a.photos)                           a.photos             = [];
-        if (a.rentVerified    === undefined)      a.rentVerified       = false;
-        if (a.amenitiesVerified === undefined)    a.amenitiesVerified  = false;
-        if (a.dataNote        === undefined)      a.dataNote           = '';
+
+    const migrated = [];
+    state.apts = (data || []).map(r => {
+        const apt = r.apt;
+        if (!Array.isArray(apt.units)) {
+            migrateApt(apt);
+            migrated.push(apt);
+        }
+        // Ensure all required fields exist
+        if (!Array.isArray(apt.photos))            apt.photos            = [];
+        if (!Array.isArray(apt.buildingAmenities)) apt.buildingAmenities = [];
+        if (!Array.isArray(apt.units))             apt.units             = [];
+        if (apt.sortOrder == null)                 apt.sortOrder         = apt.id * 10;
+        if (apt.starred   == null)                 apt.starred           = false;
+        return apt;
     });
-    state.nextId = Math.max(...state.apts.map(a => a.id)) + 1;
-    renderGrid();
+
+    // Persist migrated records
+    if (migrated.length) {
+        migrating = true;
+        await Promise.all(migrated.map(saveApt));
+        migrating = false;
+    }
+
+    state.nextId = Math.max(...state.apts.map(a => a.id), 0) + 1;
+    renderList();
     computeWalkTimes();
 }
 
-// Real-time: refresh grid when any apartment changes
+function createBlankApt() {
+    const id = state.nextId++;
+    const maxOrder = state.apts.reduce((m, a) => Math.max(m, a.sortOrder ?? 0), 0);
+    return {
+        id, name: '', address: '', neighborhood: '',
+        googleRating: '', websiteUrl: '', listingUrl: '',
+        buildingAmenities: [],
+        ac: null, washerDryer: '', dishwasher: null,
+        utilitiesIncluded: '',
+        units: [{ id: `${id}-0`, type: '', unitNumber: '', sqft: null, price: null, available: 'now' }],
+        holdDays: '', phone: '', contactName: '',
+        called: false, tourType: '', specialOffers: '',
+        comments: '', notes: '',
+        photos: [], starred: false,
+        sortOrder: maxOrder + 10,
+    };
+}
+
+// ── Real-time ──────────────────────────────────────────────────────────────
 sb.channel('apartments')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'apartments' }, loadApts)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'apartments' }, () => {
+        if (migrating) return;
+        loadApts();
+    })
     .subscribe();
 
-// ── Gallery state ─────────────────────────────────────────────────────────────
-let galleryAptId = null;
-let galleryIdx   = 0;
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const or  = (v, fallback='—') => (v != null && v !== '') ? v : fallback;
-
-function rentClass(r) {
-    if (r == null) return 'unknown';
-    if (r < 1500)  return 'cheap';
-    if (r <= 1700) return 'mid';
-    return 'pricey';
+// ── Walk time ──────────────────────────────────────────────────────────────
+async function geocode(address) {
+    if (geoCache[address]) return geoCache[address];
+    try {
+        const res  = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
+            { headers: { 'User-Agent': 'SeattleAptFinder/1.0' } }
+        );
+        const data = await res.json();
+        if (!data[0]) return null;
+        const coords = { lat: +data[0].lat, lon: +data[0].lon };
+        geoCache[address] = coords;
+        saveGeoCache();
+        return coords;
+    } catch { return null; }
 }
 
-function starsHtml(r) {
-    if (r == null) return '<span class="no-info">Not rated</span>';
-    const n = Math.min(10, Math.round(r));
-    return '★'.repeat(n) + '☆'.repeat(10 - n);
+async function computeWalkTimes() {
+    const workAddr = state.work.trim();
+    if (!workAddr) return;
+    const workCoords = await geocode(workAddr);
+    if (!workCoords) return;
+
+    const aptsWithAddr = state.apts.filter(a => a.address?.trim());
+    const coordsList = [];
+    for (const apt of aptsWithAddr) {
+        if (!geoCache[apt.address]) await new Promise(r => setTimeout(r, 1100));
+        coordsList.push(await geocode(apt.address));
+    }
+
+    const validPairs = aptsWithAddr.map((apt, i) => ({ apt, coords: coordsList[i] })).filter(x => x.coords);
+    if (!validPairs.length) return;
+
+    const allCoords = [workCoords, ...validPairs.map(x => x.coords)];
+    const coordStr  = allCoords.map(c => `${c.lon},${c.lat}`).join(';');
+
+    try {
+        const res  = await fetch(`https://router.project-osrm.org/table/v1/foot/${coordStr}?sources=0&annotations=duration`);
+        const data = await res.json();
+        if (data.code !== 'Ok') return;
+        validPairs.forEach(({ apt }, i) => {
+            const secs = data.durations[0][i + 1];
+            if (secs != null) realWalkTimes[apt.id] = `${Math.round(secs / 60)} min`;
+        });
+        // Update walk times in list without full re-render
+        validPairs.forEach(({ apt }) => {
+            const el = document.querySelector(`.apt-row[data-id="${apt.id}"] .row-walk`);
+            if (el) el.textContent = realWalkTimes[apt.id] || '';
+        });
+        // Also update open detail modal if showing
+        if (openDetailId != null) {
+            const el = document.getElementById('detailWalkTime');
+            if (el) el.textContent = realWalkTimes[openDetailId] || '—';
+        }
+    } catch {}
 }
 
-function mapsUrl(from, to, mode) {
-    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}&travelmode=${mode}`;
+// ── Grocery lookup ─────────────────────────────────────────────────────────
+async function findNearbyGroceries(aptId) {
+    const a  = state.apts.find(x => x.id === aptId);
+    const el = document.getElementById('groceryResults');
+    if (!a || !a.address || !el) { if (el) el.innerHTML = ''; return; }
+
+    const mapsBtn = `<a class="link-btn grocery-maps-btn" href="${groceryMapsUrl(a.address)}" target="_blank">🗺 View on Google Maps</a>`;
+
+    try {
+        const geoRes  = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(a.address)}&format=json&limit=1`,
+            { headers: { 'User-Agent': 'SeattleAptFinder/1.0' } }
+        );
+        const geoData = await geoRes.json();
+        if (!geoData.length) { el.innerHTML = `<span class="no-info">Could not locate address.</span>`; return; }
+
+        const { lat, lon } = geoData[0];
+        const q = `[out:json][timeout:12];(node["shop"~"supermarket|grocery"](around:1000,${lat},${lon});way["shop"~"supermarket|grocery"](around:1000,${lat},${lon});node["shop"="convenience"](around:600,${lat},${lon}););out center;`;
+
+        const opRes  = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q) });
+        const opData = await opRes.json();
+
+        const stores = opData.elements
+            .map(el => {
+                const eLat = el.lat ?? el.center?.lat, eLon = el.lon ?? el.center?.lon;
+                if (!eLat || !eLon || !el.tags?.name) return null;
+                return { name: el.tags.name, type: el.tags.shop, dist: haversine(+lat, +lon, eLat, eLon) };
+            })
+            .filter(Boolean).sort((a, b) => a.dist - b.dist).slice(0, 5);
+
+        if (!stores.length) { el.innerHTML = `<span class="no-info">No stores found nearby.</span>${mapsBtn}`; return; }
+
+        const distStr = d => d < 0.12 ? `${Math.round(d * 5280)} ft` : `${d.toFixed(2)} mi`;
+        const walkMin = d => Math.max(1, Math.round(d * 20));
+        const typeIcon = t => t === 'supermarket' ? '🏪' : t === 'convenience' ? '🏬' : '🛒';
+
+        el.innerHTML = `
+            <div class="grocery-list">
+                ${stores.map(s => `
+                <div class="grocery-item">
+                    <span class="grocery-icon">${typeIcon(s.type)}</span>
+                    <span class="grocery-name">${esc(s.name)}</span>
+                    <span class="grocery-dist">${distStr(s.dist)} · ${walkMin(s.dist)} min walk</span>
+                </div>`).join('')}
+            </div>
+            ${mapsBtn}`;
+    } catch {
+        el.innerHTML = `<span class="no-info">Could not load store data.</span>`;
+    }
 }
 
-function groceryMapsUrl(address) {
-    return `https://www.google.com/maps/search/grocery+stores+near+${encodeURIComponent(address)}`;
-}
-
-function haversine(lat1, lon1, lat2, lon2) {
-    const R = 3958.8;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-    return R * 2 * Math.asin(Math.sqrt(a));
-}
-
-function wdLabel(v) {
-    if (v === 'unit')     return '<span class="badge badge-green">W/D in-unit</span>';
-    if (v === 'building') return '<span class="badge badge-blue">W/D in building</span>';
-    if (v === 'none')     return '<span class="badge badge-gray">No W/D</span>';
-    return '<span class="no-info">W/D unknown</span>';
-}
-
-function yesNo(v, label) {
-    if (v === true)  return `<span class="badge badge-green">${label}</span>`;
-    if (v === false) return `<span class="badge badge-gray">No ${label}</span>`;
-    return `<span class="no-info">${label}?</span>`;
-}
-
-function srcBadge(verified) {
-    return verified
-        ? '<span class="badge badge-verified">✓ verified</span>'
-        : '<span class="badge badge-sheet">from sheet</span>';
-}
-
-// ── Image compression ─────────────────────────────────────────────────────────
+// ── Image compression ──────────────────────────────────────────────────────
 function compressImage(file, maxDim = 1100, quality = 0.72) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -343,496 +360,16 @@ function compressImage(file, maxDim = 1100, quality = 0.72) {
     });
 }
 
-// ── Grocery lookup ────────────────────────────────────────────────────────────
-async function findNearbyGroceries(aptId) {
-    const a  = state.apts.find(x => x.id === aptId);
-    const el = document.getElementById('groceryResults');
-    if (!a || !a.address || !el) return;
-
-    const mapsBtn = `<a class="link-btn grocery-maps-btn" href="${groceryMapsUrl(a.address)}" target="_blank">🗺 View all on Google Maps</a>`;
-
-    try {
-        const geoRes  = await fetch(
-            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(a.address)}&format=json&limit=1`,
-            { headers: { 'User-Agent': 'SeattleAptFinder/1.0' } }
-        );
-        const geoData = await geoRes.json();
-        if (!geoData.length) {
-            el.innerHTML = `<p class="no-info" style="margin-bottom:8px">Could not locate address.</p>${mapsBtn}`;
-            return;
-        }
-
-        const { lat, lon } = geoData[0];
-        const q = `[out:json][timeout:12];(node["shop"~"supermarket|grocery"](around:1000,${lat},${lon});way["shop"~"supermarket|grocery"](around:1000,${lat},${lon});node["shop"="convenience"](around:600,${lat},${lon}););out center;`;
-
-        const opRes  = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            body: 'data=' + encodeURIComponent(q),
-        });
-        const opData = await opRes.json();
-
-        const stores = opData.elements
-            .map(el => {
-                const eLat = el.lat ?? el.center?.lat;
-                const eLon = el.lon ?? el.center?.lon;
-                if (!eLat || !eLon || !el.tags?.name) return null;
-                return { name: el.tags.name, type: el.tags.shop, dist: haversine(+lat, +lon, eLat, eLon) };
-            })
-            .filter(Boolean)
-            .sort((a, b) => a.dist - b.dist)
-            .slice(0, 6);
-
-        if (!stores.length) {
-            el.innerHTML = `<p class="no-info" style="margin-bottom:8px">No stores found within 0.6 miles.</p>${mapsBtn}`;
-            return;
-        }
-
-        const distStr = d => d < 0.12 ? `${Math.round(d * 5280)} ft` : `${d.toFixed(2)} mi`;
-        const walkMin = d => Math.max(1, Math.round(d * 20));
-        const typeIcon = t => t === 'supermarket' ? '🏪' : t === 'convenience' ? '🏬' : '🛒';
-
-        el.innerHTML = `
-            <div class="grocery-list">
-                ${stores.map(s => `
-                <div class="grocery-item">
-                    <span class="grocery-icon">${typeIcon(s.type)}</span>
-                    <span class="grocery-name">${esc(s.name)}</span>
-                    <span class="grocery-dist">${distStr(s.dist)} · ${walkMin(s.dist)} min walk</span>
-                </div>`).join('')}
-            </div>
-            ${mapsBtn}`;
-
-    } catch {
-        el.innerHTML = `<p class="no-info" style="margin-bottom:8px">Could not load store data.</p>${mapsBtn}`;
-    }
-}
-
-// ── Walk time calculation ─────────────────────────────────────────────────────
-const GEO_CACHE_KEY = 'seattle-apts-geo';
-let geoCache = {};
-try { geoCache = JSON.parse(localStorage.getItem(GEO_CACHE_KEY)) || {}; } catch {}
-const saveGeoCache = () => { try { localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(geoCache)); } catch {} };
-
-const realWalkTimes = {};
-
-async function geocode(address) {
-    if (geoCache[address]) return geoCache[address];
-    try {
-        const res  = await fetch(
-            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
-            { headers: { 'User-Agent': 'SeattleAptFinder/1.0' } }
-        );
-        const data = await res.json();
-        if (!data[0]) return null;
-        const coords = { lat: +data[0].lat, lon: +data[0].lon };
-        geoCache[address] = coords;
-        saveGeoCache();
-        return coords;
-    } catch { return null; }
-}
-
-async function computeWalkTimes() {
-    const workAddr = state.work.trim();
-    if (!workAddr) return;
-
-    const workCoords = await geocode(workAddr);
-    if (!workCoords) return;
-
-    const aptsWithAddr = state.apts.filter(a => a.address?.trim());
-    const coordsList   = [];
-    for (const apt of aptsWithAddr) {
-        // 1100ms delay only for uncached addresses to respect Nominatim rate limit
-        if (!geoCache[apt.address]) await new Promise(r => setTimeout(r, 1100));
-        coordsList.push(await geocode(apt.address));
-    }
-
-    const validPairs = aptsWithAddr
-        .map((apt, i) => ({ apt, coords: coordsList[i] }))
-        .filter(x => x.coords);
-    if (!validPairs.length) return;
-
-    const allCoords = [workCoords, ...validPairs.map(x => x.coords)];
-    const coordStr  = allCoords.map(c => `${c.lon},${c.lat}`).join(';');
-
-    try {
-        const res  = await fetch(
-            `https://router.project-osrm.org/table/v1/foot/${coordStr}?sources=0&annotations=duration`
-        );
-        const data = await res.json();
-        if (data.code !== 'Ok') return;
-        const durations = data.durations[0];
-        validPairs.forEach(({ apt }, i) => {
-            const secs = durations[i + 1];
-            if (secs != null) realWalkTimes[apt.id] = `${Math.round(secs / 60)} min`;
-        });
-        renderGrid();
-    } catch { /* silently fail, fall back to stored values */ }
-}
-
-// ── Filter / sort ─────────────────────────────────────────────────────────────
-function getVisible() {
-    const fType = document.getElementById('fType').value;
-    const fRent = +document.getElementById('fRent').value || Infinity;
-    const fWD   = document.getElementById('fWD').value;
-    const fAC   = document.getElementById('fAC').checked;
-    const fDW   = document.getElementById('fDW').checked;
-    const fStar = document.getElementById('fStar').checked;
-    const sort  = document.getElementById('sortBy').value;
-
-    let list = state.apts.filter(a => {
-        if (fType && a.type !== fType) return false;
-        if (fRent < Infinity && (a.rent == null || a.rent > fRent)) return false;
-        if (fWD && a.washerDryer !== fWD) return false;
-        if (fAC  && !a.ac)        return false;
-        if (fDW  && !a.dishwasher) return false;
-        if (fStar && !a.starred)   return false;
-        return true;
-    });
-
-    list.sort((a, b) => {
-        if (sort === 'rent')      return (a.rent ?? 9999) - (b.rent ?? 9999);
-        if (sort === 'rentDesc')  return (b.rent ?? 0) - (a.rent ?? 0);
-        if (sort === 'sqft')      return (a.sqft ?? 9999) - (b.sqft ?? 9999);
-        if (sort === 'rating')    return (b.rating ?? -1) - (a.rating ?? -1);
-        if (sort === 'available') return String(a.dateAvailable).localeCompare(String(b.dateAvailable));
-        return 0;
-    });
-
-    return list;
-}
-
-// ── Card ──────────────────────────────────────────────────────────────────────
-function cardHtml(a) {
-    const work    = state.work;
-    const hasWork = work.trim() !== '';
-
-    const distBadge = (() => {
-        const walk    = realWalkTimes[a.id] || a.walkToWork?.trim();
-        const transit = a.transitToWork?.trim();
-        if (!walk && !transit) return hasWork ? `<a href="${mapsUrl(a.address, work, 'walking')}" target="_blank" class="work-dist" onclick="event.stopPropagation()">🗺 Get directions</a>` : '';
-        const parts = [];
-        if (walk)    parts.push(`🚶 ${walk}`);
-        if (transit) parts.push(`🚌 ${transit}`);
-        return `<span class="work-dist">${parts.join(' · ')}</span>`;
-    })();
-
-    const inCompare = state.compareIds.includes(a.id);
-    const thumb     = a.photos?.length > 0 ? a.photos[0].url : null;
-
-    return `
-    <div class="card ${a.starred ? 'starred' : ''}" data-id="${a.id}">
-        ${thumb ? `<div class="card-photo"><img src="${esc(thumb)}" alt="${esc(a.name)}" loading="lazy" onerror="this.closest('.card-photo').remove()"></div>` : ''}
-        <div class="card-top">
-            <div class="card-title">
-                <span class="apt-name">${esc(a.name)}</span>
-                <span class="apt-hood">${esc(a.neighborhood)} · ${esc(a.type)}</span>
-            </div>
-            <div class="card-top-actions">
-                <button class="star-btn" title="${a.starred ? 'Unstar' : 'Star'}" onclick="toggleStar(${a.id},event)">${a.starred ? '⭐' : '☆'}</button>
-                <input type="checkbox" class="cmp-check" title="Add to compare" ${inCompare ? 'checked' : ''} onclick="toggleCompare(${a.id},event)">
-            </div>
-        </div>
-
-        <div class="card-meta">${a.sqft ? `${a.sqftNote || a.sqft} sqft` : '<span class="no-info">Sqft unknown</span>'}</div>
-
-        <div class="card-rent">
-            <span class="rent-num ${rentClass(a.rent)}">${a.rent ? '$' + a.rent.toLocaleString() : '—'}</span>
-            <span class="rent-sub">/mo${a.rentMax ? '–$'+a.rentMax.toLocaleString() : ''}${a.estUtils ? ' · est. $'+a.estUtils.toLocaleString()+' w/ utils' : ''}</span>
-        </div>
-
-        <div class="badges">
-            ${wdLabel(a.washerDryer)}
-            ${a.dishwasher ? '<span class="badge badge-green">Dishwasher</span>' : ''}
-            ${a.ac         ? '<span class="badge badge-blue">AC</span>'  : ''}
-            ${a.heating    ? '<span class="badge badge-yellow">Heating</span>' : ''}
-            ${a.utilitiesIncluded ? '<span class="badge badge-orange">Utils included</span>' : ''}
-        </div>
-
-        <div class="card-info">
-            ${a.dateAvailable ? `<div class="info-row"><span class="ii">📅</span><span>Available ${esc(a.dateAvailable)}</span></div>` : ''}
-            ${a.amenities    ? `<div class="info-row"><span class="ii">🏢</span><span>${esc(a.amenities)}</span></div>` : ''}
-            <div class="info-row">
-                <span class="ii">🛒</span>
-                ${a.nearbyGrocery
-                    ? `<span>${esc(a.nearbyGrocery)}</span>`
-                    : `<a class="grocery-card-link" href="${groceryMapsUrl(a.address)}" target="_blank" onclick="event.stopPropagation()">Find grocery stores</a>`}
-            </div>
-        </div>
-
-        <div class="card-rating">
-            <span class="stars">${starsHtml(a.rating)}</span>
-            ${a.rating != null ? `<span class="rating-num">${a.rating}/10</span>` : ''}
-        </div>
-
-        <div class="card-footer">
-            <span>${distBadge}</span>
-            <span class="added-by">${a.addedBy ? 'by ' + esc(a.addedBy) : ''}</span>
-        </div>
-    </div>`;
-}
-
-// ── Grid render ───────────────────────────────────────────────────────────────
-function renderGrid() {
-    const list  = getVisible();
-    const grid  = document.getElementById('grid');
-    const empty = document.getElementById('empty');
-    const count = document.getElementById('aptCount');
-
-    count.textContent = `${state.apts.length} apartments · ${list.length} shown`;
-
-    if (list.length === 0) {
-        grid.innerHTML = '';
-        empty.classList.remove('hidden');
-    } else {
-        empty.classList.add('hidden');
-        grid.innerHTML = list.map(cardHtml).join('');
-        grid.querySelectorAll('.card').forEach(el => {
-            el.addEventListener('click', () => openDetail(+el.dataset.id));
-        });
-    }
-
-    const n   = state.compareIds.length;
-    const btn = document.getElementById('compareBtn');
-    document.getElementById('compareCount').textContent = n;
-    btn.disabled = n < 2;
-    btn.classList.toggle('active', n > 0);
-}
-
-// ── Star / compare toggles ────────────────────────────────────────────────────
-window.toggleStar = function(id, e) {
-    e.stopPropagation();
-    const a = state.apts.find(x => x.id === id);
-    if (a) { a.starred = !a.starred; saveApt(a); renderGrid(); }
-};
-
-window.toggleCompare = function(id, e) {
-    e.stopPropagation();
-    const idx = state.compareIds.indexOf(id);
-    if (idx >= 0) {
-        state.compareIds.splice(idx, 1);
-    } else {
-        if (state.compareIds.length >= 3) {
-            alert('You can compare up to 3 apartments at a time.');
-            e.target.checked = false;
-            return;
-        }
-        state.compareIds.push(id);
-    }
-    save();
-    renderGrid();
-};
-
-// ── Gallery helpers ───────────────────────────────────────────────────────────
-window.galleryNav = function(dir) {
-    const a = state.apts.find(x => x.id === galleryAptId);
-    if (!a || !a.photos.length) return;
-    galleryIdx = (galleryIdx + dir + a.photos.length) % a.photos.length;
-    updateGalleryUI(a);
-};
-
-window.gallerySet = function(idx) {
-    const a = state.apts.find(x => x.id === galleryAptId);
-    if (!a) return;
-    galleryIdx = idx;
-    updateGalleryUI(a);
-};
-
-function updateGalleryUI(a) {
-    const img  = document.getElementById('galleryImg');
-    const curr = document.getElementById('galleryCurr');
-    if (img)  img.src = a.photos[galleryIdx].url;
-    if (curr) curr.textContent = galleryIdx + 1;
-    document.querySelectorAll('.gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === galleryIdx));
-}
-
-function galleryHtml(a) {
-    if (!a.photos?.length) return '';
-    const multi = a.photos.length > 1;
-    return `
-    <div class="gallery">
-        <div class="gallery-main">
-            <img id="galleryImg" src="${esc(a.photos[0].url)}" alt="${esc(a.photos[0].caption || a.name)}" onerror="this.closest('.gallery').remove()">
-            ${multi ? `
-            <button class="gallery-btn gallery-prev" onclick="galleryNav(-1)">&#8249;</button>
-            <button class="gallery-btn gallery-next" onclick="galleryNav(1)">&#8250;</button>
-            <div class="gallery-counter"><span id="galleryCurr">1</span>/${a.photos.length}</div>
-            ` : ''}
-        </div>
-        ${multi ? `
-        <div class="gallery-thumbs">
-            ${a.photos.map((p, i) => `<img class="gallery-thumb ${i===0?'active':''}" src="${esc(p.url)}" onclick="gallerySet(${i})" title="${esc(p.caption||'')}">`).join('')}
-        </div>` : ''}
-    </div>`;
-}
-
-// ── Detail modal ──────────────────────────────────────────────────────────────
-function openDetail(id) {
-    const a = state.apts.find(x => x.id === id);
-    if (!a) return;
-    galleryAptId = id;
-    galleryIdx   = 0;
-    const work = state.work.trim();
-
-    const walkLink    = work && a.address ? `<a class="link-btn" href="${mapsUrl(a.address, work, 'walking')}" target="_blank">🚶 Walk to work</a>` : '';
-    const transitLink = work && a.address ? `<a class="link-btn" href="${mapsUrl(a.address, work, 'transit')}" target="_blank">🚌 Transit to work</a>` : '';
-
-    const hasWarn = a.dataNote?.includes('⚠️');
-    const noteClass = (a.rentVerified && a.amenitiesVerified) ? 'data-note verified' : hasWarn ? 'data-note warn' : 'data-note';
-
-    document.getElementById('detailModal').innerHTML = `
-        <button class="modal-close" onclick="closeModal('detailOverlay')">×</button>
-
-        ${galleryHtml(a)}
-
-        <div class="d-header">
-            <div class="d-name">${esc(a.name)} ${a.starred ? '⭐' : ''}</div>
-            <div class="d-sub">${esc(a.neighborhood)} · ${esc(a.type)}${a.sqft ? ' · ' + (a.sqftNote || a.sqft) + ' sqft' : ''}</div>
-            <div class="d-links">
-                ${a.url ? `<a class="link-btn" href="${esc(a.url)}" target="_blank">🔗 View listing</a>` : ''}
-                ${walkLink}${transitLink}
-                <button class="link-btn" onclick="openForm(${a.id})">✏️ Edit</button>
-            </div>
-        </div>
-
-        <div class="d-body">
-
-            ${a.dataNote ? `<div class="${noteClass}">${esc(a.dataNote)}</div>` : ''}
-
-            <div class="d-section">
-                <h3>Rent</h3>
-                <div class="d-grid-3">
-                    <div class="d-field">
-                        <label>Base rent ${srcBadge(a.rentVerified)}</label>
-                        <div class="val"><span class="rent-num ${rentClass(a.rent)}">${a.rent ? '$'+a.rent.toLocaleString() : '—'}</span>${a.rentMax ? '–$'+a.rentMax.toLocaleString() : ''}</div>
-                    </div>
-                    <div class="d-field"><label>Est. with utilities</label><div class="val">${a.estUtils ? '$'+a.estUtils.toLocaleString()+'/mo' : '<span class="no-info">Unknown</span>'}</div></div>
-                    <div class="d-field"><label>Utilities included</label><div class="val">${a.utilitiesIncluded || '<span class="no-info">None / unknown</span>'}</div></div>
-                </div>
-            </div>
-
-            <div class="d-section">
-                <h3>Unit & Building ${srcBadge(a.amenitiesVerified)}</h3>
-                <div class="badges" style="margin-bottom:10px">
-                    ${wdLabel(a.washerDryer)}
-                    ${yesNo(a.dishwasher,'Dishwasher')}
-                    ${yesNo(a.ac,'AC')}
-                    ${yesNo(a.heating,'Heating')}
-                </div>
-                ${a.amenities ? `<div class="d-field"><label>Building amenities</label><div class="val">${esc(a.amenities)}</div></div>` : ''}
-            </div>
-
-            <div class="d-section">
-                <h3>Availability</h3>
-                <div class="d-grid-3">
-                    <div class="d-field"><label>Available</label><div class="val">${or(a.dateAvailable)}</div></div>
-                    <div class="d-field"><label>Lease length</label><div class="val">${a.leaseMonths ? a.leaseMonths + ' months' : '—'}</div></div>
-                    <div class="d-field"><label>Added by</label><div class="val">${or(a.addedBy)}</div></div>
-                </div>
-            </div>
-
-            <div class="d-section">
-                <h3>Distance & Location</h3>
-                <div class="d-grid-2">
-                    <div class="d-field"><label>Walk to work</label><div class="val">${or(realWalkTimes[a.id] || a.walkToWork)}</div></div>
-                    <div class="d-field"><label>Transit to work</label><div class="val">${or(a.transitToWork)}</div></div>
-                    <div class="d-field"><label>Nearby transit</label><div class="val">${or(a.nearbyTransit)}</div></div>
-                    <div class="d-field"><label>Noted grocery</label><div class="val">${or(a.nearbyGrocery)}</div></div>
-                </div>
-            </div>
-
-            <div class="d-section">
-                <h3>Nearby Grocery Stores</h3>
-                <div id="groceryResults" class="grocery-results">
-                    <div class="grocery-loading">
-                        <div class="grocery-spinner"></div>
-                        <span>Searching nearby stores…</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-section">
-                <h3>Rating & Flags</h3>
-                <div class="d-field" style="margin-bottom:10px">
-                    <label>Rating</label>
-                    <div class="val">
-                        <span class="stars">${starsHtml(a.rating)}</span>
-                        ${a.rating != null ? `<span class="rating-num" style="margin-left:6px">${a.rating}/10</span>` : ''}
-                    </div>
-                </div>
-                ${a.greenFlags ? `<div class="flag-box flag-green" style="margin-bottom:8px">✅ ${esc(a.greenFlags)}</div>` : ''}
-                ${a.redFlags   ? `<div class="flag-box flag-red">❌ ${esc(a.redFlags)}</div>` : ''}
-            </div>
-
-            ${a.notes ? `
-            <div class="d-section">
-                <h3>Notes</h3>
-                <div class="flag-box" style="background:#f8fafc">${esc(a.notes)}</div>
-            </div>` : ''}
-
-            <div class="d-section">
-                <h3>Comments</h3>
-                <div class="comment-block">
-                    ${['Ishita','Ishmeet','Jyotsna','Aarav'].map(name => `
-                    <div class="comment-row">
-                        <div class="comment-name">${name}</div>
-                        <textarea class="comment-text" data-id="${a.id}" data-who="${name.toLowerCase()}" placeholder="Add comment…">${esc(a['comment'+name] || '')}</textarea>
-                    </div>`).join('')}
-                </div>
-            </div>
-
-        </div>
-
-        <div class="d-footer">
-            <button class="btn-danger" onclick="deleteApt(${a.id})">Delete</button>
-            <div class="d-footer-actions">
-                <button class="btn-ghost" onclick="closeModal('detailOverlay')">Close</button>
-                <button class="btn-save" onclick="saveComments(${a.id})">Save comments</button>
-            </div>
-        </div>
-    `;
-
-    document.getElementById('detailOverlay').classList.remove('hidden');
-    findNearbyGroceries(id);
-}
-
-window.saveComments = function(id) {
-    const a = state.apts.find(x => x.id === id);
-    if (!a) return;
-    document.querySelectorAll('.comment-text[data-id]').forEach(ta => {
-        if (+ta.dataset.id !== id) return;
-        const who = ta.dataset.who;
-        a['comment' + who.charAt(0).toUpperCase() + who.slice(1)] = ta.value;
-    });
-    saveApt(a);
-    renderGrid();
-    const btn = document.querySelector('.btn-save');
-    if (btn) { btn.textContent = '✓ Saved'; setTimeout(() => { btn.textContent = 'Save comments'; }, 1500); }
-};
-
-window.deleteApt = function(id) {
-    if (!confirm('Delete this apartment?')) return;
-    state.apts = state.apts.filter(a => a.id !== id);
-    state.compareIds = state.compareIds.filter(x => x !== id);
-    save();
-    deleteAptFromDb(id);
-    closeModal('detailOverlay');
-    renderGrid();
-};
-
-// ── Photo helpers ─────────────────────────────────────────────────────────────
 function photoRowHtml(photo) {
     const url     = photo?.url     || '';
     const caption = photo?.caption || '';
     const isData  = url.startsWith('data:');
     return `
     <div class="photo-row">
-        <div class="photo-thumb">
-            ${url ? `<img src="${esc(url)}" onerror="this.style.display='none'">` : ''}
-        </div>
+        <div class="photo-thumb">${url ? `<img src="${esc(url)}" onerror="this.style.display='none'">` : ''}</div>
         <div class="photo-fields">
             ${isData
-                ? `<div class="photo-uploaded-badge">📷 Uploaded photo</div>
-                   <input type="hidden" class="photo-url" value="${esc(url)}">`
+                ? `<div class="photo-uploaded-badge">📷 Uploaded</div><input type="hidden" class="photo-url" value="${esc(url)}">`
                 : `<input type="text" class="photo-url" placeholder="Image URL https://…" value="${esc(url)}">`}
             <input type="text" class="photo-caption" placeholder="Caption (optional)" value="${esc(caption)}">
         </div>
@@ -847,13 +384,18 @@ window.addPhotoRow = function(photo = null) {
     div.innerHTML = photoRowHtml(photo || {});
     const row = div.firstElementChild;
     container.appendChild(row);
-    if (!photo?.url) row.querySelector('.photo-url')?.focus();
-    // Live preview: update thumb when URL input changes
-    const urlInput = row.querySelector('input.photo-url');
+    const urlInput = row.querySelector('input.photo-url:not([type=hidden])');
     const thumbImg = row.querySelector('.photo-thumb img');
-    if (urlInput && thumbImg) {
-        urlInput.addEventListener('input', () => { thumbImg.src = urlInput.value; thumbImg.style.display = 'block'; });
+    if (urlInput) {
+        urlInput.addEventListener('input', () => {
+            if (!thumbImg) {
+                const img = document.createElement('img');
+                row.querySelector('.photo-thumb').appendChild(img);
+            }
+            row.querySelector('.photo-thumb img').src = urlInput.value;
+        });
     }
+    if (!photo?.url) urlInput?.focus();
 };
 
 window.handlePhotoUpload = async function(files) {
@@ -871,280 +413,654 @@ window.handlePhotoUpload = async function(files) {
             addPhotoRow({ url: publicUrl, caption: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') });
         } catch (err) {
             console.error('Photo upload failed:', err);
-            alert('Photo upload failed — check the console for details.');
+            showToast('Photo upload failed — check console');
         }
     }
     if (uploadBtn) { uploadBtn.textContent = '📷 Upload photos'; uploadBtn.disabled = false; }
-    document.getElementById('photoFileInput').value = '';
+    const fi = document.getElementById('photoFileInput');
+    if (fi) fi.value = '';
 };
 
-// ── Add / Edit form ───────────────────────────────────────────────────────────
-window.openForm = function(id) {
-    const existing = id ? state.apts.find(a => a.id === id) : null;
-    const a        = existing || { id: null, type:'1bd/1ba', washerDryer:'unit', dishwasher:true, ac:true, heating:true, photos:[] };
-    const isEdit   = !!existing;
+// ── Toast ──────────────────────────────────────────────────────────────────
+function showToast(msg, duration = 2500) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), duration);
+}
 
-    const sel = (name, opts, val) =>
-        `<select name="${name}">${opts.map(([v,l]) => `<option value="${v}" ${v==val?'selected':''}>${l}</option>`).join('')}</select>`;
+// ── Filter / sort ──────────────────────────────────────────────────────────
+function getVisible() {
+    const fType = document.getElementById('fType').value;
+    const fRent = +document.getElementById('fRent').value || Infinity;
+    const fWD   = document.getElementById('fWD').value;
+    const fAC   = document.getElementById('fAC').checked;
+    const fDW   = document.getElementById('fDW').checked;
+    const fStar = document.getElementById('fStar').checked;
 
-    const inp = (name, label, val, type='text', placeholder='') =>
-        `<div class="d-field"><label>${label}</label><input type="${type}" name="${name}" value="${esc(val??'')}" placeholder="${esc(placeholder)}"></div>`;
-
-    const ta = (name, label, val, placeholder='') =>
-        `<div class="d-field"><label>${label}</label><textarea name="${name}" placeholder="${esc(placeholder)}">${esc(val??'')}</textarea></div>`;
-
-    document.getElementById('formModal').innerHTML = `
-        <button class="modal-close" onclick="closeModal('formOverlay')">×</button>
-        <div class="form-header"><h2>${isEdit ? 'Edit' : 'Add'} Apartment</h2></div>
-        <form id="aptForm" class="form-body">
-
-            <div class="form-section">Basic Info</div>
-            <div class="form-row">
-                ${inp('name','Name',a.name,'text','e.g. Station House')}
-                ${inp('url','Listing URL',a.url,'url','https://...')}
-            </div>
-            <div class="form-row">
-                ${inp('address','Full Address',a.address,'text','123 Main St, Seattle, WA 98104')}
-                ${inp('neighborhood','Neighborhood',a.neighborhood,'text','Capitol Hill')}
-            </div>
-            <div class="form-row-3">
-                <div class="d-field"><label>Type</label>${sel('type',[['studio','Studio'],['1bd/1ba','1 bed / 1 bath']],a.type)}</div>
-                ${inp('sqft','Sqft',a.sqft,'number','618')}
-                ${inp('sqftNote','Sqft note',a.sqftNote,'text','600–640')}
-            </div>
-
-            <div class="form-section">Photos</div>
-            <div class="photo-upload-bar">
-                <button type="button" id="uploadPhotosBtn" class="btn-primary btn-sm" onclick="document.getElementById('photoFileInput').click()">📷 Upload photos</button>
-                <button type="button" class="btn-outline btn-sm" onclick="addPhotoRow()">+ Add by URL</button>
-                <input type="file" id="photoFileInput" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this.files)">
-                <span class="photo-hint">Uploads are compressed &amp; stored locally in your browser</span>
-            </div>
-            <div id="photosContainer">
-                ${(a.photos||[]).map(p => photoRowHtml(p)).join('')}
-            </div>
-
-            <div class="form-section">Rent</div>
-            <div class="form-row-3">
-                ${inp('rent','Base rent ($)',a.rent,'number','1650')}
-                ${inp('rentMax','Max rent ($)',a.rentMax,'number','')}
-                ${inp('estUtils','Est. w/ utilities ($)',a.estUtils,'number','1850')}
-            </div>
-            ${inp('utilitiesIncluded','Utilities included',a.utilitiesIncluded,'text','Electricity, Water, Heat')}
-            <div class="form-row">
-                <div class="d-field">
-                    <label>Rent verified from website?</label>
-                    ${sel('rentVerified',[['true','Yes — verified'],['false','No — from sheet']],a.rentVerified===true?'true':'false')}
-                </div>
-                ${inp('dataNote','Data source note',a.dataNote,'text','e.g. Price verified May 7')}
-            </div>
-
-            <div class="form-section">Unit & Building</div>
-            <div class="form-row-3">
-                <div class="d-field"><label>Washer/Dryer</label>${sel('washerDryer',[['unit','In-unit'],['building','In building'],['none','None'],['' ,'Unknown']],a.washerDryer)}</div>
-                <div class="d-field"><label>Dishwasher</label>${sel('dishwasher',[['true','Yes'],['false','No'],['','Unknown']],a.dishwasher===true?'true':a.dishwasher===false?'false':'')}</div>
-                <div class="d-field"><label>AC</label>${sel('ac',[['true','Yes'],['false','No'],['','Unknown']],a.ac===true?'true':a.ac===false?'false':'')}</div>
-            </div>
-            <div class="form-row">
-                <div class="d-field"><label>Heating</label>${sel('heating',[['true','Yes'],['false','No'],['','Unknown']],a.heating===true?'true':a.heating===false?'false':'')}</div>
-                ${inp('amenities','Building amenities',a.amenities,'text','Gym, pool, rooftop')}
-            </div>
-            <div class="d-field">
-                <label>Amenities verified from website?</label>
-                ${sel('amenitiesVerified',[['true','Yes — verified'],['false','No — from sheet']],a.amenitiesVerified===true?'true':'false')}
-            </div>
-
-            <div class="form-section">Availability</div>
-            <div class="form-row">
-                ${inp('dateAvailable','Date available',a.dateAvailable,'text','May 15')}
-                ${inp('leaseMonths','Lease length (months)',a.leaseMonths,'text','12')}
-            </div>
-
-            <div class="form-section">Distance & Location</div>
-            <div class="form-row">
-                ${inp('walkToWork','Walk to work',a.walkToWork,'text','12 min')}
-                ${inp('transitToWork','Transit to work',a.transitToWork,'text','8 min by bus')}
-            </div>
-            <div class="form-row">
-                ${inp('nearbyTransit','Nearby transit stop',a.nearbyTransit,'text','Capitol Hill Link Station')}
-                ${inp('nearbyGrocery','Nearby grocery (text note)',a.nearbyGrocery,'text','10 min walk to QFC')}
-            </div>
-
-            <div class="form-section">Rating & Flags</div>
-            <div class="d-field">
-                <label>Rating (1–10)</label>
-                <div class="rating-input">
-                    <input type="range" name="ratingRange" min="0" max="10" step="1" value="${a.rating??0}" oninput="document.getElementById('ratingDisp').textContent=this.value==0?'Not rated':this.value+'/10'">
-                    <span class="rating-val" id="ratingDisp">${a.rating ? a.rating+'/10' : 'Not rated'}</span>
-                    <input type="hidden" name="rating" value="${a.rating??''}">
-                </div>
-            </div>
-            ${ta('greenFlags','Green flags ✅',a.greenFlags,'What you love about it')}
-            ${ta('redFlags','Red flags ❌',a.redFlags,'Concerns or drawbacks')}
-            ${ta('notes','Notes',a.notes,'Anything else to note')}
-
-            <div class="form-section">Added By</div>
-            ${inp('addedBy','Who added this',a.addedBy,'text','Aarav')}
-
-        </form>
-        <div class="form-footer">
-            <button class="btn-ghost" onclick="closeModal('formOverlay')">Cancel</button>
-            <button class="btn-save" onclick="submitForm(${isEdit ? a.id : 'null'})">Save</button>
-        </div>
-    `;
-
-    const range  = document.querySelector('[name=ratingRange]');
-    const hidden = document.querySelector('[name=rating]');
-    if (range) range.addEventListener('input', () => { hidden.value = range.value == 0 ? '' : range.value; });
-
-    // Wire live previews for pre-existing URL rows
-    document.querySelectorAll('#photosContainer .photo-row').forEach(row => {
-        const urlInput = row.querySelector('input.photo-url:not([type=hidden])');
-        const thumbImg = row.querySelector('.photo-thumb img');
-        if (urlInput && thumbImg) {
-            urlInput.addEventListener('input', () => { thumbImg.src = urlInput.value; });
+    let list = state.apts.filter(a => {
+        if (fType && !(a.units || []).some(u => u.type === fType)) return false;
+        if (fRent < Infinity) {
+            const lo = minPrice(a);
+            if (lo == null || lo > fRent) return false;
         }
+        if (fWD && a.washerDryer !== fWD) return false;
+        if (fAC  && !a.ac)        return false;
+        if (fDW  && !a.dishwasher) return false;
+        if (fStar && !a.starred)   return false;
+        return true;
     });
 
-    document.getElementById('formOverlay').classList.remove('hidden');
-    if (isEdit) closeModal('detailOverlay');
-};
+    if (currentSort === 'default') {
+        list.sort((a, b) => (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999));
+    } else if (currentSort === 'priceAsc') {
+        list.sort((a, b) => (minPrice(a) ?? 99999) - (minPrice(b) ?? 99999));
+    } else if (currentSort === 'priceDesc') {
+        list.sort((a, b) => (minPrice(b) ?? 0) - (minPrice(a) ?? 0));
+    } else if (currentSort === 'area') {
+        list.sort((a, b) => (maxSqft(b) ?? 0) - (maxSqft(a) ?? 0));
+    }
 
-window.submitForm = function(id) {
-    const form = document.getElementById('aptForm');
-    const fd   = new FormData(form);
-    const get  = k => fd.get(k)?.trim() ?? '';
-    const bool = k => fd.get(k) === 'true' ? true : fd.get(k) === 'false' ? false : null;
+    return list;
+}
 
+// ── List rendering ─────────────────────────────────────────────────────────
+function rowHtml(a) {
+    const walk    = realWalkTimes[a.id] || '';
+    const isDrag  = currentSort === 'default';
+    return `
+    <div class="apt-row${a.starred ? ' starred' : ''}${isDrag ? '' : ' drag-disabled'}"
+         data-id="${a.id}"
+         draggable="${isDrag}">
+        <span class="row-drag" title="Drag to reorder">⠿</span>
+        <button class="row-star" title="${a.starred ? 'Unstar' : 'Star'}"
+                onclick="toggleStar(${a.id}, event)">${a.starred ? '⭐' : '☆'}</button>
+        <div class="row-main" onclick="openDetail(${a.id})">
+            <div class="row-name">${esc(a.name || 'Unnamed')}</div>
+            <div class="row-sub">
+                ${a.neighborhood ? `<span class="row-hood">${esc(a.neighborhood)}</span><span class="row-sep">·</span>` : ''}
+                <span>${esc(unitSummary(a))}</span>
+            </div>
+        </div>
+        <div class="row-badges">
+            ${a.washerDryer === 'unit'     ? '<span class="badge badge-green">W/D</span>'    : ''}
+            ${a.ac                         ? '<span class="badge badge-blue">AC</span>'       : ''}
+            ${a.dishwasher                 ? '<span class="badge badge-green">DW</span>'      : ''}
+            ${a.called                     ? '<span class="badge badge-orange">Called</span>' : ''}
+        </div>
+        <span class="row-walk">${esc(walk)}</span>
+    </div>`;
+}
+
+function renderList() {
+    const list  = getVisible();
+    const el    = document.getElementById('list');
+    const empty = document.getElementById('empty');
+    const count = document.getElementById('aptCount');
+
+    count.textContent = `${state.apts.length} buildings · ${list.length} shown`;
+
+    if (!list.length) {
+        el.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+    el.innerHTML = list.map(rowHtml).join('');
+    if (currentSort === 'default') attachDragListeners();
+}
+
+// ── Drag and drop ──────────────────────────────────────────────────────────
+let dragSrcId = null;
+
+function attachDragListeners() {
+    document.querySelectorAll('.apt-row[draggable=true]').forEach(row => {
+        row.addEventListener('dragstart', e => {
+            dragSrcId = +row.dataset.id;
+            row.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        row.addEventListener('dragend', () => {
+            row.classList.remove('dragging');
+            document.querySelectorAll('.apt-row.drag-over').forEach(r => r.classList.remove('drag-over'));
+        });
+        row.addEventListener('dragover', e => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            document.querySelectorAll('.apt-row.drag-over').forEach(r => r.classList.remove('drag-over'));
+            row.classList.add('drag-over');
+        });
+        row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+        row.addEventListener('drop', async e => {
+            e.preventDefault();
+            row.classList.remove('drag-over');
+            const dropId = +row.dataset.id;
+            if (dragSrcId === dropId) return;
+
+            const visibleIds = getVisible().map(a => a.id);
+            const srcIdx = visibleIds.indexOf(dragSrcId);
+            const dstIdx = visibleIds.indexOf(dropId);
+            if (srcIdx < 0 || dstIdx < 0) return;
+
+            // Reorder
+            visibleIds.splice(srcIdx, 1);
+            visibleIds.splice(dstIdx, 0, dragSrcId);
+
+            // Reassign sortOrder and save changed ones
+            const toSave = [];
+            visibleIds.forEach((id, i) => {
+                const a = state.apts.find(x => x.id === id);
+                if (!a) return;
+                const newOrder = (i + 1) * 10;
+                if (a.sortOrder !== newOrder) {
+                    a.sortOrder = newOrder;
+                    toSave.push(a);
+                }
+            });
+            renderList();
+            await Promise.all(toSave.map(saveApt));
+        });
+    });
+}
+
+// ── Sort buttons ───────────────────────────────────────────────────────────
+function setSortMode(mode) {
+    currentSort = mode;
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.sort === mode);
+    });
+    renderList();
+}
+
+// ── Detail modal ───────────────────────────────────────────────────────────
+function unitsTableHtml(units) {
+    const rows = (units || []).map(u => `
+        <tr class="unit-row" data-unit-id="${esc(u.id)}">
+            <td><input class="unit-type"      type="text"   value="${esc(u.type)}"       placeholder="Studio / 1bd/1ba"></td>
+            <td><input class="unit-number"    type="text"   value="${esc(u.unitNumber)}" placeholder="4B"></td>
+            <td><input class="unit-sqft"      type="number" value="${u.sqft  ?? ''}"     placeholder="650"></td>
+            <td><input class="unit-price"     type="number" value="${u.price ?? ''}"     placeholder="1650"></td>
+            <td><input class="unit-available" type="text"   value="${esc(u.available || 'now')}" placeholder="now"></td>
+            <td><button type="button" class="unit-del-btn" onclick="deleteUnitRow(this)">×</button></td>
+        </tr>`).join('');
+
+    return `
+    <table class="units-table" id="unitsTable">
+        <thead><tr>
+            <th>Type</th><th>Unit #</th><th>Sqft</th><th>$/mo</th><th>Available</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table>
+    <button type="button" class="link-btn" style="margin-top:8px" onclick="addUnitRow()">+ Add unit</button>`;
+}
+
+function amenityChecklistHtml(apt) {
+    const opts = getAmenityOptions();
+    const checks = opts.map(opt => `
+        <label class="amenity-cb-label">
+            <input type="checkbox" class="amenity-cb" value="${esc(opt)}"${(apt.buildingAmenities || []).includes(opt) ? ' checked' : ''}>
+            ${esc(opt)}
+        </label>`).join('');
+    return `
+    <div class="amenity-checklist" id="amenityChecklist">${checks}</div>
+    <button type="button" class="link-btn" style="margin-top:8px" onclick="addCustomAmenity()">+ Add amenity</button>`;
+}
+
+function detailModalHtml(a) {
+    const work = state.work.trim();
+    const directionsHref = work && a.address ? mapsUrl(a.address, work, 'walking') : '#';
+
+    return `
+    <button class="modal-close" onclick="closeModal('detailOverlay')">×</button>
+
+    <div class="d-header">
+        <div class="d-header-top">
+            <button class="d-star-btn" id="detailStarBtn"
+                    onclick="toggleStar(${a.id}, event)">${a.starred ? '⭐' : '☆'}</button>
+            <input id="detailName" class="d-name-input" type="text"
+                   value="${esc(a.name)}" placeholder="Building name">
+        </div>
+        <div class="d-header-row2">
+            <input id="detailNeighborhood" class="d-inline-input" type="text"
+                   value="${esc(a.neighborhood)}" placeholder="Neighborhood">
+            <span class="d-sep">·</span>
+            <span class="d-rating-label">Google</span>
+            <input id="detailGoogleRating" class="d-inline-input d-rating-input" type="text"
+                   value="${esc(a.googleRating)}" placeholder="4.2">
+        </div>
+        <div class="d-links">
+            <a class="link-btn" href="${esc(a.websiteUrl || '#')}" target="_blank"
+               style="${a.websiteUrl ? '' : 'opacity:0.45;pointer-events:none'}">🏠 Website</a>
+            <a class="link-btn" href="${esc(a.listingUrl || '#')}" target="_blank"
+               style="${a.listingUrl ? '' : 'opacity:0.45;pointer-events:none'}">🔗 Listing</a>
+            <a class="link-btn" href="${directionsHref}" target="_blank"
+               style="${work && a.address ? '' : 'opacity:0.45;pointer-events:none'}">🗺 Directions</a>
+            <button class="link-btn" id="autoFillBtn" onclick="autoFill(${a.id})">✨ Auto-fill</button>
+        </div>
+    </div>
+
+    <div class="d-body">
+
+        <div class="d-section">
+            <h3>Address & Links</h3>
+            <div class="d-field">
+                <label>Address</label>
+                <input id="detailAddress" type="text" value="${esc(a.address)}"
+                       placeholder="123 Main St, Seattle, WA 98104">
+            </div>
+            <div class="d-url-row">
+                <div class="d-field">
+                    <label>Website URL</label>
+                    <input id="detailWebsiteUrl" type="url" value="${esc(a.websiteUrl)}"
+                           placeholder="https://building.com">
+                </div>
+                <div class="d-field">
+                    <label>Listing URL (Zillow, Padmapper…)</label>
+                    <input id="detailListingUrl" type="url" value="${esc(a.listingUrl)}"
+                           placeholder="https://zillow.com/…">
+                </div>
+            </div>
+        </div>
+
+        <div class="d-section">
+            <h3>Units</h3>
+            ${unitsTableHtml(a.units)}
+        </div>
+
+        <div class="d-section">
+            <h3>In-Unit Amenities</h3>
+            <div class="inunit-row">
+                <label class="amenity-toggle">
+                    <input type="checkbox" id="detailAC"${a.ac ? ' checked' : ''}> AC
+                </label>
+                <label class="amenity-toggle">
+                    <input type="checkbox" id="detailDW"${a.dishwasher ? ' checked' : ''}> Dishwasher
+                </label>
+                <div class="d-field" style="min-width:160px">
+                    <label>Washer/Dryer</label>
+                    <select id="detailWD">
+                        <option value=""        ${!a.washerDryer              ? 'selected' : ''}>Unknown</option>
+                        <option value="unit"    ${a.washerDryer === 'unit'    ? 'selected' : ''}>In-unit</option>
+                        <option value="building"${a.washerDryer === 'building'? 'selected' : ''}>In building</option>
+                        <option value="none"    ${a.washerDryer === 'none'    ? 'selected' : ''}>None</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-field" style="margin-top:6px">
+                <label>Utilities included (describe)</label>
+                <input id="detailUtilities" type="text" value="${esc(a.utilitiesIncluded || '')}"
+                       placeholder="e.g. Water, garbage – $150/mo">
+            </div>
+        </div>
+
+        <div class="d-section">
+            <h3>Building Amenities</h3>
+            ${amenityChecklistHtml(a)}
+        </div>
+
+        <div class="d-section">
+            <h3>Location</h3>
+            <div class="d-grid-2">
+                <div class="d-field">
+                    <label>Walk to work</label>
+                    <div class="val" id="detailWalkTime">${esc(realWalkTimes[a.id] || '—')}</div>
+                </div>
+                <div class="d-field">
+                    <label>Nearby grocery stores</label>
+                    <div id="groceryResults" class="grocery-results">
+                        <div class="grocery-loading">
+                            <div class="grocery-spinner"></div>
+                            <span>Searching…</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-section">
+            <h3>Interactions</h3>
+            <div class="d-grid-2">
+                <div class="d-field">
+                    <label>Phone</label>
+                    <input id="detailPhone" type="tel" value="${esc(a.phone)}"
+                           placeholder="(206) 555-0100">
+                </div>
+                <div class="d-field">
+                    <label>Contact name</label>
+                    <input id="detailContactName" type="text" value="${esc(a.contactName)}"
+                           placeholder="Manager name">
+                </div>
+            </div>
+            <div class="inunit-row" style="margin-top:10px">
+                <label class="amenity-toggle">
+                    <input type="checkbox" id="detailCalled"${a.called ? ' checked' : ''}> Called
+                </label>
+                <div class="d-field" style="flex:1">
+                    <label>Hold period</label>
+                    <input id="detailHoldDays" type="text" value="${esc(a.holdDays)}"
+                           placeholder="30 days">
+                </div>
+            </div>
+            <div class="d-field" style="margin-top:10px">
+                <label>Tour type</label>
+                <div class="tour-radio-group">
+                    <label><input type="radio" name="tourType" value=""${!a.tourType ? ' checked' : ''}> None</label>
+                    <label><input type="radio" name="tourType" value="in-person"${a.tourType === 'in-person' ? ' checked' : ''}> In-person</label>
+                    <label><input type="radio" name="tourType" value="virtual"${a.tourType === 'virtual' ? ' checked' : ''}> Virtual</label>
+                    <label><input type="radio" name="tourType" value="self-guided"${a.tourType === 'self-guided' ? ' checked' : ''}> Self-guided</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-section">
+            <h3>Special Offers</h3>
+            <div class="d-field">
+                <textarea id="detailSpecialOffers"
+                          placeholder="e.g. 6 weeks free on 12-month lease, $1,000 gift card">${esc(a.specialOffers)}</textarea>
+            </div>
+        </div>
+
+        <div class="d-section">
+            <h3>Comments</h3>
+            <div class="d-field">
+                <textarea id="detailComments" style="min-height:90px"
+                          placeholder="Shared team comments…">${esc(a.comments)}</textarea>
+            </div>
+        </div>
+
+        <div class="d-section">
+            <h3>Notes</h3>
+            <div class="d-field">
+                <textarea id="detailNotes"
+                          placeholder="Anything else to note…">${esc(a.notes)}</textarea>
+            </div>
+        </div>
+
+        <div class="d-section">
+            <h3>Photos</h3>
+            <div class="photo-upload-bar">
+                <button type="button" id="uploadPhotosBtn" class="btn-primary btn-sm"
+                        onclick="document.getElementById('photoFileInput').click()">📷 Upload photos</button>
+                <button type="button" class="btn-outline btn-sm" onclick="addPhotoRow()">+ URL</button>
+                <input type="file" id="photoFileInput" accept="image/*" multiple
+                       style="display:none" onchange="handlePhotoUpload(this.files)">
+            </div>
+            <div id="photosContainer">
+                ${(a.photos || []).map(p => photoRowHtml(p)).join('')}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="d-footer">
+        <button class="btn-danger" onclick="deleteApt(${a.id})">Delete</button>
+        <div class="d-footer-actions">
+            <button class="btn-ghost" onclick="closeModal('detailOverlay')">Close</button>
+            <button class="btn-save" id="detailSaveBtn" onclick="saveDetail()">Save</button>
+        </div>
+    </div>`;
+}
+
+function collectFormData() {
+    const get  = id => document.getElementById(id)?.value?.trim() ?? '';
+    const bool = id => document.getElementById(id)?.checked ?? false;
+
+    // Units
+    const units = [];
+    document.querySelectorAll('#unitsTable .unit-row').forEach(row => {
+        const price = parseFloat(row.querySelector('.unit-price')?.value) || null;
+        const sqft  = parseFloat(row.querySelector('.unit-sqft')?.value)  || null;
+        units.push({
+            id:        row.dataset.unitId || `${openDetailId}-${Date.now()}`,
+            type:      row.querySelector('.unit-type')?.value?.trim()      || '',
+            unitNumber:row.querySelector('.unit-number')?.value?.trim()    || '',
+            sqft,
+            price,
+            available: row.querySelector('.unit-available')?.value?.trim() || 'now',
+        });
+    });
+
+    // Building amenities
+    const buildingAmenities = [...document.querySelectorAll('#amenityChecklist .amenity-cb:checked')]
+        .map(cb => cb.value);
+
+    // Tour type
+    const tourType = document.querySelector('[name=tourType]:checked')?.value || '';
+
+    // Photos
     const photos = [];
     document.querySelectorAll('#photosContainer .photo-row').forEach(row => {
-        const urlInput = row.querySelector('.photo-url');
-        const url      = urlInput?.value.trim() || '';
-        const caption  = row.querySelector('.photo-caption')?.value.trim() || '';
+        const url     = row.querySelector('.photo-url')?.value?.trim() || '';
+        const caption = row.querySelector('.photo-caption')?.value?.trim() || '';
         if (url) photos.push({ url, caption });
     });
 
-    const data = {
-        url: get('url'), name: get('name'), address: get('address'),
-        neighborhood: get('neighborhood'), type: get('type'),
-        sqft: get('sqft') ? +get('sqft') : null,
-        sqftNote: get('sqftNote'),
-        rent: get('rent') ? +get('rent') : null,
-        rentMax: get('rentMax') ? +get('rentMax') : null,
-        estUtils: get('estUtils') ? +get('estUtils') : null,
-        utilitiesIncluded: get('utilitiesIncluded'),
-        washerDryer: get('washerDryer') || null,
-        dishwasher: bool('dishwasher'), ac: bool('ac'), heating: bool('heating'),
-        amenities: get('amenities'),
-        dateAvailable: get('dateAvailable'), leaseMonths: get('leaseMonths'),
-        walkToWork: get('walkToWork'), transitToWork: get('transitToWork'),
-        nearbyTransit: get('nearbyTransit'), nearbyGrocery: get('nearbyGrocery'),
-        rating: get('rating') !== '' ? +get('rating') : null,
-        greenFlags: get('greenFlags'), redFlags: get('redFlags'),
-        notes: get('notes'), addedBy: get('addedBy'),
-        rentVerified: fd.get('rentVerified') === 'true',
-        amenitiesVerified: fd.get('amenitiesVerified') === 'true',
-        dataNote: get('dataNote'),
+    return {
+        name:             get('detailName'),
+        neighborhood:     get('detailNeighborhood'),
+        googleRating:     get('detailGoogleRating'),
+        address:          get('detailAddress'),
+        websiteUrl:       get('detailWebsiteUrl'),
+        listingUrl:       get('detailListingUrl'),
+        ac:               bool('detailAC'),
+        dishwasher:       bool('detailDW'),
+        washerDryer:      get('detailWD'),
+        utilitiesIncluded:get('detailUtilities'),
+        phone:            get('detailPhone'),
+        contactName:      get('detailContactName'),
+        called:           bool('detailCalled'),
+        holdDays:         get('detailHoldDays'),
+        tourType,
+        specialOffers:    get('detailSpecialOffers'),
+        comments:         get('detailComments'),
+        notes:            get('detailNotes'),
+        buildingAmenities,
+        units,
         photos,
     };
-
-    if (id) {
-        Object.assign(state.apts.find(x => x.id === id), data);
-        data.id = id;
-    } else {
-        data.id = state.nextId++;
-        data.starred = false;
-        data.commentIshita = ''; data.commentIshmeet = '';
-        data.commentJyotsna = ''; data.commentAarav = '';
-        state.apts.push(data);
-    }
-
-    saveApt(data);
-    closeModal('formOverlay');
-    renderGrid();
-};
-
-// ── Compare modal ─────────────────────────────────────────────────────────────
-function openCompare() {
-    const apts = state.apts.filter(a => state.compareIds.includes(a.id));
-    if (apts.length < 2) return;
-
-    const minRent   = Math.min(...apts.map(a => a.rent ?? Infinity));
-    const maxRent   = Math.max(...apts.map(a => a.rent ?? -Infinity));
-    const maxSqft   = Math.max(...apts.map(a => a.sqft ?? -Infinity));
-    const maxRating = Math.max(...apts.map(a => a.rating ?? -1));
-
-    const rows = [
-        ['Neighborhood',    a => a.neighborhood],
-        ['Type',            a => a.type],
-        ['Sqft',            a => a.sqft ? (a.sqftNote || a.sqft) + ' sqft' : '—'],
-        ['Base rent',       a => a.rent ? '$'+a.rent.toLocaleString() : '—'],
-        ['Est. w/ utils',   a => a.estUtils ? '$'+a.estUtils.toLocaleString() : '—'],
-        ['Utils included',  a => a.utilitiesIncluded || 'None'],
-        ['Washer/Dryer',    a => a.washerDryer === 'unit' ? 'In-unit ✅' : a.washerDryer === 'building' ? 'Building' : a.washerDryer === 'none' ? 'None' : '?'],
-        ['Dishwasher',      a => a.dishwasher === true ? 'Yes ✅' : a.dishwasher === false ? 'No' : '?'],
-        ['AC',              a => a.ac === true ? 'Yes ✅' : a.ac === false ? 'No' : '?'],
-        ['Available',       a => a.dateAvailable || '—'],
-        ['Lease',           a => a.leaseMonths ? a.leaseMonths+' mo' : '—'],
-        ['Walk to work',    a => a.walkToWork || '—'],
-        ['Transit to work', a => a.transitToWork || '—'],
-        ['Nearby transit',  a => a.nearbyTransit || '—'],
-        ['Rating',          a => a.rating != null ? a.rating+'/10' : '—'],
-        ['Green flags',     a => a.greenFlags || '—'],
-        ['Red flags',       a => a.redFlags || '—'],
-        ['Notes',           a => a.notes || '—'],
-        ['Data source',     a => a.rentVerified ? '✓ Rent verified' : 'From sheet'],
-    ];
-
-    const tableRows = rows.map(([label, fn]) =>
-        `<tr><td>${label}</td>${apts.map(a => `<td>${esc(String(fn(a) ?? '—'))}</td>`).join('')}</tr>`
-    );
-
-    document.getElementById('compareModal').innerHTML = `
-        <button class="modal-close" onclick="closeModal('compareOverlay')">×</button>
-        <div style="padding:20px 24px 0"><h2 style="font-size:1.1rem;font-weight:800">Compare Apartments</h2></div>
-        <div class="compare-wrap">
-            <table class="compare-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        ${apts.map(a => `<th><div class="compare-apt-name">${esc(a.name)}</div><div class="compare-apt-sub">${esc(a.neighborhood)}</div></th>`).join('')}
-                    </tr>
-                </thead>
-                <tbody>${tableRows.join('')}</tbody>
-            </table>
-        </div>
-        <div style="padding:14px 24px;border-top:1px solid var(--border);text-align:right">
-            <button class="btn-ghost" onclick="closeModal('compareOverlay')">Close</button>
-        </div>
-    `;
-
-    document.getElementById('compareOverlay').classList.remove('hidden');
-
-    const highlight = (rowIdx, getBest, getWorst) => {
-        const trs = document.querySelectorAll('.compare-table tr');
-        if (!trs[rowIdx + 1]) return;
-        trs[rowIdx + 1].querySelectorAll('td:not(:first-child)').forEach((c, i) => {
-            if (getBest  && getBest(apts[i]))  c.classList.add('cell-best');
-            if (getWorst && getWorst(apts[i])) c.classList.add('cell-worst');
-        });
-    };
-
-    highlight(3,  a => a.rent === minRent, a => a.rent === maxRent);
-    highlight(2,  a => a.sqft === maxSqft, null);
-    highlight(14, a => a.rating === maxRating, null);
 }
 
-// ── Modal helpers ─────────────────────────────────────────────────────────────
-window.closeModal = id => document.getElementById(id).classList.add('hidden');
+window.openDetail = function(id) {
+    const a = state.apts.find(x => x.id === id);
+    if (!a) return;
+    openDetailId = id;
+    document.getElementById('detailModal').innerHTML = detailModalHtml(a);
+    document.getElementById('detailOverlay').classList.remove('hidden');
 
-['detailOverlay','compareOverlay','formOverlay'].forEach(id => {
-    document.getElementById(id).addEventListener('click', e => {
-        if (e.target === e.currentTarget) closeModal(id);
+    // Wire existing photo URL inputs for live preview
+    document.querySelectorAll('#photosContainer .photo-row').forEach(row => {
+        const urlInput = row.querySelector('input.photo-url:not([type=hidden])');
+        const thumb    = row.querySelector('.photo-thumb img');
+        if (urlInput && thumb) urlInput.addEventListener('input', () => { thumb.src = urlInput.value; });
     });
+
+    findNearbyGroceries(id);
+};
+
+window.saveDetail = async function() {
+    const a = state.apts.find(x => x.id === openDetailId);
+    if (!a) return;
+
+    const btn = document.getElementById('detailSaveBtn');
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+
+    const data = collectFormData();
+    data.id        = a.id;
+    data.starred   = a.starred;
+    data.sortOrder = a.sortOrder;
+    data.photos    = data.photos; // already collected
+
+    Object.assign(a, data);
+    await saveApt(a);
+
+    renderList();
+    if (btn) { btn.textContent = '✓ Saved'; btn.classList.add('saved'); btn.disabled = false; }
+    setTimeout(() => {
+        if (btn) { btn.textContent = 'Save'; btn.classList.remove('saved'); }
+    }, 2000);
+
+    // Update header links dynamically
+    const websiteLink = document.querySelector('#detailModal .d-links a:nth-child(1)');
+    const listingLink = document.querySelector('#detailModal .d-links a:nth-child(2)');
+    if (websiteLink) { websiteLink.href = a.websiteUrl || '#'; websiteLink.style.opacity = a.websiteUrl ? '' : '0.45'; websiteLink.style.pointerEvents = a.websiteUrl ? '' : 'none'; }
+    if (listingLink) { listingLink.href = a.listingUrl || '#'; listingLink.style.opacity = a.listingUrl ? '' : '0.45'; listingLink.style.pointerEvents = a.listingUrl ? '' : 'none'; }
+};
+
+window.deleteApt = function(id) {
+    if (!confirm('Delete this apartment?')) return;
+    state.apts = state.apts.filter(a => a.id !== id);
+    deleteAptFromDb(id);
+    closeModal('detailOverlay');
+    renderList();
+};
+
+window.toggleStar = function(id, event) {
+    event?.stopPropagation();
+    const a = state.apts.find(x => x.id === id);
+    if (!a) return;
+    a.starred = !a.starred;
+    saveApt(a);
+    // Update list row in place
+    const row = document.querySelector(`.apt-row[data-id="${id}"]`);
+    if (row) {
+        row.classList.toggle('starred', a.starred);
+        const starBtn = row.querySelector('.row-star');
+        if (starBtn) starBtn.textContent = a.starred ? '⭐' : '☆';
+    }
+    // Update detail modal star in place
+    const modalStar = document.getElementById('detailStarBtn');
+    if (modalStar) modalStar.textContent = a.starred ? '⭐' : '☆';
+};
+
+window.addUnitRow = function() {
+    const tbody = document.querySelector('#unitsTable tbody');
+    if (!tbody) return;
+    const uid = `${openDetailId}-${Date.now()}`;
+    const tr  = document.createElement('tr');
+    tr.className    = 'unit-row';
+    tr.dataset.unitId = uid;
+    tr.innerHTML = `
+        <td><input class="unit-type"      type="text"   placeholder="Studio / 1bd/1ba"></td>
+        <td><input class="unit-number"    type="text"   placeholder="4B"></td>
+        <td><input class="unit-sqft"      type="number" placeholder="650"></td>
+        <td><input class="unit-price"     type="number" placeholder="1650"></td>
+        <td><input class="unit-available" type="text"   value="now"></td>
+        <td><button type="button" class="unit-del-btn" onclick="deleteUnitRow(this)">×</button></td>`;
+    tbody.appendChild(tr);
+    tr.querySelector('.unit-type')?.focus();
+};
+
+window.deleteUnitRow = function(btn) {
+    const tbody = document.querySelector('#unitsTable tbody');
+    if (tbody && tbody.rows.length <= 1) { showToast('Need at least one unit'); return; }
+    btn.closest('tr').remove();
+};
+
+window.addCustomAmenity = function() {
+    const val = prompt('Amenity name:')?.trim();
+    if (!val) return;
+    const list = document.getElementById('amenityChecklist');
+    if (!list) return;
+    // Check it doesn't already exist
+    const exists = [...list.querySelectorAll('.amenity-cb')].some(cb => cb.value.toLowerCase() === val.toLowerCase());
+    if (exists) { showToast('Amenity already exists'); return; }
+    const label = document.createElement('label');
+    label.className = 'amenity-cb-label';
+    label.innerHTML = `<input type="checkbox" class="amenity-cb" value="${esc(val)}" checked> ${esc(val)}`;
+    list.appendChild(label);
+};
+
+// ── URL auto-fill ──────────────────────────────────────────────────────────
+window.autoFill = async function(id) {
+    const btn = document.getElementById('autoFillBtn');
+    const listingUrl = document.getElementById('detailListingUrl')?.value?.trim()
+                    || document.getElementById('detailWebsiteUrl')?.value?.trim();
+    if (!listingUrl) { showToast('Enter a website or listing URL first'); return; }
+
+    if (btn) { btn.textContent = '⏳ Fetching…'; btn.disabled = true; }
+
+    try {
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(listingUrl)}`;
+        const res  = await fetch(proxyUrl);
+        const json = await res.json();
+        if (!json.contents) throw new Error('No content');
+        parseScrapedHtml(json.contents, id);
+    } catch (err) {
+        console.warn('Auto-fill failed:', err);
+        showToast('Auto-fill failed — site may block scraping');
+    }
+
+    if (btn) { btn.textContent = '✨ Auto-fill'; btn.disabled = false; }
+};
+
+function parseScrapedHtml(html, id) {
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(html, 'text/html');
+    const text   = doc.body?.innerText || '';
+    const filled = [];
+
+    // Phone — only fill if empty
+    const phoneInput = document.getElementById('detailPhone');
+    if (phoneInput && !phoneInput.value.trim()) {
+        const phoneMatch = text.match(/\(?\d{3}\)?[\s.\-]\d{3}[\s.\-]\d{4}/);
+        if (phoneMatch) { phoneInput.value = phoneMatch[0]; filled.push('phone'); }
+    }
+
+    // Price — only fill if first unit price is empty
+    const firstPriceInput = document.querySelector('#unitsTable .unit-price');
+    if (firstPriceInput && !firstPriceInput.value) {
+        const prices = [...text.matchAll(/\$[\s]?([\d,]+)/g)]
+            .map(m => parseInt(m[1].replace(/,/g,'')))
+            .filter(p => p >= 500 && p <= 10000);
+        if (prices.length) { firstPriceInput.value = prices[0]; filled.push('price'); }
+    }
+
+    // Sqft — only fill if first unit sqft is empty
+    const firstSqftInput = document.querySelector('#unitsTable .unit-sqft');
+    if (firstSqftInput && !firstSqftInput.value) {
+        const sqftMatch = text.match(/(\d{3,4})\s*sq\.?\s*ft/i);
+        if (sqftMatch) { firstSqftInput.value = sqftMatch[1]; filled.push('sqft'); }
+    }
+
+    // Amenities — only check, never uncheck
+    const amenityCheckboxes = document.querySelectorAll('#amenityChecklist .amenity-cb');
+    amenityCheckboxes.forEach(cb => {
+        if (!cb.checked && text.toLowerCase().includes(cb.value.toLowerCase())) {
+            cb.checked = true;
+            filled.push(cb.value);
+        }
+    });
+
+    if (filled.length) {
+        showToast(`Auto-filled: ${filled.join(', ')}`);
+    } else {
+        showToast('Nothing new found to fill in');
+    }
+}
+
+// ── Modal helpers ──────────────────────────────────────────────────────────
+window.closeModal = function(id) {
+    document.getElementById(id).classList.add('hidden');
+    if (id === 'detailOverlay') openDetailId = null;
+};
+
+document.getElementById('detailOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal('detailOverlay');
 });
 
-// ── Work location ─────────────────────────────────────────────────────────────
+// ── Add apartment ──────────────────────────────────────────────────────────
+async function addApt() {
+    const apt = createBlankApt();
+    state.apts.push(apt);
+    await saveApt(apt);
+    renderList();
+    openDetail(apt.id);
+}
+
+// ── Work address ───────────────────────────────────────────────────────────
 const workInput = document.getElementById('workInput');
 const clearWork = document.getElementById('clearWork');
 
@@ -1155,8 +1071,8 @@ let workDebounce = null;
 workInput.addEventListener('input', () => {
     state.work = workInput.value;
     clearWork.classList.toggle('hidden', !state.work);
-    save();
-    renderGrid();
+    savePrefs();
+    renderList();
     clearTimeout(workDebounce);
     workDebounce = setTimeout(() => computeWalkTimes(), 1000);
 });
@@ -1165,17 +1081,21 @@ clearWork.addEventListener('click', () => {
     state.work = '';
     workInput.value = '';
     clearWork.classList.add('hidden');
-    save();
-    renderGrid();
+    savePrefs();
+    renderList();
 });
 
-// ── Filter / sort listeners ───────────────────────────────────────────────────
-['fType','fRent','fWD','sortBy'].forEach(id => document.getElementById(id).addEventListener('change', renderGrid));
-['fAC','fDW','fStar'].forEach(id => document.getElementById(id).addEventListener('change', renderGrid));
+// ── Filter wiring ──────────────────────────────────────────────────────────
+['fType','fRent','fWD'].forEach(id => document.getElementById(id).addEventListener('change', renderList));
+['fAC','fDW','fStar'].forEach(id => document.getElementById(id).addEventListener('change', renderList));
 
-// ── Header buttons ────────────────────────────────────────────────────────────
-document.getElementById('addBtn').addEventListener('click', () => openForm(null));
-document.getElementById('compareBtn').addEventListener('click', openCompare);
+// ── Sort button wiring ─────────────────────────────────────────────────────
+document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => setSortMode(btn.dataset.sort));
+});
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ── Add button ─────────────────────────────────────────────────────────────
+document.getElementById('addBtn').addEventListener('click', addApt);
+
+// ── Init ───────────────────────────────────────────────────────────────────
 loadApts();
